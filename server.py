@@ -1,21 +1,17 @@
+'sim_pgw2 server module'
+
 from twisted.internet import reactor, protocol
-from messages import _PGW_MSG_HEAD
-from define import _MESSAGE_ID
+from header import _PGW_MSG_HEAD
+from define import __MESSAGE_ID
 
 
 class MyProtocol(protocol.Protocol):
     def dataReceived(self, data):
-        self.myScenario(data)
-        # p 성공
-        # p msg id로 메시지 할당
-        # p 실패 ? 버림
         print("dataRecieved : ", data)
+        header = _PGW_MSG_HEAD(data[0:1])
+        msgid = __MESSAGE_ID(header.gw_msgid)
+        
         self.transport.write(data)
-
-    def myScenario(self, data):
-        header = _PGW_MSG_HEAD(data)
-        if(header.gw_msgid == _MESSAGE_ID.CALL_SETUP_REQ.value):
-            print('hello call setup req')
 
 
 class MyFactory(protocol.Factory):

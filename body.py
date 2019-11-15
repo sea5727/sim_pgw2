@@ -1,4 +1,3 @@
-
 from message import ISerializable
 import struct
 from define import _CALL_TYPE
@@ -12,8 +11,8 @@ from define import _CALL_TYPE
 # RPC : BBHIIIIHH
 
 
-class CALL_SETUP_REQ(ISerializable):
-    def __init__(self, buf=None, calltype=None):
+class _CALL_SETUP_REQ(ISerializable):
+    def __init__(self, buf, calltype=None):
         if buf is not None and calltype is not None:    # buf와 calltype 동시는 불가
             return
         if calltype is not None and isinstance(calltype, _CALL_TYPE):
@@ -126,6 +125,16 @@ class CALL_SETUP_REQ(ISerializable):
     def GetBytes(self):
         if self.data is None:
             return bytes(self.GetSize())
+        self.data = [
+            self.call_type,
+            self.priority,
+            self.reserve2,
+            self.s_call_id,
+            self.o_ssid,
+            self.t_ssid,
+            self.media_ip,
+            self.media_port,
+        ]
         return struct.pack(self.struct_fmt, *self.data)
 
     def GetSize(self):
@@ -152,7 +161,7 @@ def test_call_setup_req_1():
         media_ip,
         media_port
     ))
-    call_setup_req = CALL_SETUP_REQ(buf)
+    call_setup_req = _CALL_SETUP_REQ(buf)
     print(call_setup_req.GetSize())
     print(call_setup_req.GetBytes())
 
@@ -184,7 +193,7 @@ def test_call_setup_req_4():
         member_3,
         member_4
     ))
-    call_setup_req = CALL_SETUP_REQ(buf)
+    call_setup_req = _CALL_SETUP_REQ(buf)
     print(call_setup_req.GetSize())
     print(call_setup_req.GetBytes())
     print(call_setup_req.data)
@@ -209,14 +218,14 @@ def test_call_setup_req_5():
     buf = struct.pack("!BBHIII", *(
         call_type, priority, reserve2, s_call_id, o_ssid, t_ssid
     ))
-    call_setup_req = CALL_SETUP_REQ(buf)
+    call_setup_req = _CALL_SETUP_REQ(buf)
     print(call_setup_req.GetSize())
     print(call_setup_req.GetBytes())
 
 
 def test_call_setup_req_make():
     for calltype in _CALL_TYPE:
-        req = CALL_SETUP_REQ(None, calltype)
+        req = _CALL_SETUP_REQ(None, calltype)
         print(req.GetSize())
         print(req.GetBytes())
 
