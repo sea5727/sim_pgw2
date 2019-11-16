@@ -255,7 +255,7 @@ class _CALL_SETUP_REQ(ISerializable):
                     self.struct_fmt += fmt
                     self.struct_len = struct.calcsize(self.struct_fmt)
                 else:
-                    self.datas.append([]) 
+                    self.datas.append([])
 
         def set_msg(self, datas):
             self.call_type = _CALL_TYPE._CT_UDG.value
@@ -1104,7 +1104,7 @@ class _CALL_AUDIO_RES(ISerializable):
         print(' Debug > call_type : ', self.call_type)
         print(' Debug > r_call_id : ', self.r_call_id)
         print(' Debug > result : ', self.result)
-        print(' Debug > expire_time : ', self.expire_time)        
+        print(' Debug > expire_time : ', self.expire_time)
 
     def GetBytes(self):
         return struct.pack(
