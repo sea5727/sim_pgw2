@@ -235,7 +235,7 @@ class _CALL_SETUP_REQ(ISerializable):
             return self.struct_len
 
     class _CT_UDG(ISerializable):
-       """
+        """
         This is inner class of _CALL_SETUP_REQ class for message structure
         """
         def init(self, buf=None):
