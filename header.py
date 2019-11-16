@@ -1,14 +1,14 @@
-from message import ISerializable
+from ISerializable import ISerializable
 import struct
 
 
 class _PGW_MSG_HEAD(ISerializable):
-    def __init__(self, buf):
+    def __init__(self, buf=None):
         self.struct_fmt = '!BBH'
         self.struct_len = struct.calcsize(self.struct_fmt)
 
         if buf is None:
-            self.gw_magic = 0
+            self.gw_magic = b'\x47'[0]
             self.gw_msgid = 0
             self.length = 0
             return
@@ -17,6 +17,11 @@ class _PGW_MSG_HEAD(ISerializable):
         self.gw_magic = unpacked[0]
         self.gw_msgid = unpacked[1]
         self.length = unpacked[2]
+
+    def PrintDump(self):
+        print(' Debug > gw_magic : ', self.gw_magic)
+        print(' Debug > gw_msgid : ', self.gw_msgid)
+        print(' Debug > length : ', self.length)
 
     def GetBytes(self):
         return struct.pack(
@@ -41,9 +46,9 @@ def test_header_1():
 
 def test_header_2():
     header = _PGW_MSG_HEAD(None)
-    print(header.GW_MAGIC)
-    print(header.GW_MSGID)
-    print(header.LENGTH)
+    print(header.gw_magic)
+    print(header.gw_msgid)
+    print(header.length)
 
 
 def main():

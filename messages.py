@@ -53,7 +53,7 @@
 
 
 # class _CALL_SETUP_REQ(MESSAGE_BUFFER):
-#     msg_type = _MESSAGE_ID.CALL_SETUP_REQ
+#     msg_type = _MESSAGE_ID._CALL_SETUP_REQ
 #     labels = []
 
 #     def __init__(self, data=None, calltype=None):
@@ -89,13 +89,13 @@
 #     h = _PGW_MSG_HEAD(call_setup_req)
 #     h.testprint()
 
-#     if h.gw_msgid == _MESSAGE_ID.CALL_SETUP_REQ.value:
+#     if h.gw_msgid == _MESSAGE_ID._CALL_SETUP_REQ.value:
 #         req = _CALL_SETUP_REQ(h.buf[h.__len__():])
 #         print('msg : ', req.msg_type.name)
 
 
 # def make_call_setup_req():
-#     req = _CALL_SETUP_REQ(None, _CALL_TYPE.CT_PRIVATE)
+#     req = _CALL_SETUP_REQ(None, _CALL_TYPE._CT_PRIVATE)
 #     print(req.call_type)
 #     req.priority = 100
 #     req.reserve2 = 0
