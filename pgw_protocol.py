@@ -1,5 +1,5 @@
 from twisted.internet.protocol import Protocol
-from body import _CALL_SETUP_REQ, _CALL_SETUP_RES, _MEDIA_ON_NOTI
+from body import *
 from header import _PGW_MSG_HEAD
 from message import _MESSAGE
 from pgw_define import _MESSAGE_ID, _CALL_TYPE

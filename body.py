@@ -3,6 +3,9 @@ import struct
 from pgw_define import _CALL_TYPE
 
 
+__all__ = ['_GW_STAUS', '_CALL_SETUP_REQ', '_CALL_SETUP_RES', '_MEDIA_ON_REQ', '_MEDIA_ON_RES', '_MEDIA_ON_RES', '_MEDIA_OFF_REQ',
+'_MEDIA_ON_NOTI', '_MEDIA_OFF_NOTI', '_CALL_LEAVE_REQ', '_CALL_LEAVE_RES', '_CALL_END_NOTI', '_BUNCH_INFO', '_CALL_AUDIT_REQ', '_CALL_AUDIT_RES']
+
 # PRIVATE : BBHIIIIH
 # GROUP : BBHIIIIH
 # EMER : BBHIIIIH
@@ -583,7 +586,7 @@ class _MEDIA_ON_REQ(ISerializable):
 
     def PrintDump(self):
         print(' Debug > call_type : ', self.call_type)
-        print(' Debug > o_priority : ', self.resuo_prioritylt)
+        print(' Debug > o_priority : ', self.o_priority)
         print(' Debug > reserve2 : ', self.reserve2)
         print(' Debug > r_call_id : ', self.r_call_id)
         print(' Debug > o_ssid : ', self.o_ssid)
@@ -839,7 +842,7 @@ class _MEDIA_OFF_NOTI(ISerializable):
         return self.struct_len
 
 
-class _CALL_REAVE_REQ(ISerializable):
+class _CALL_LEAVE_REQ(ISerializable):
     """
     This is request message for call reave
     """
@@ -885,7 +888,7 @@ class _CALL_REAVE_REQ(ISerializable):
         return self.struct_len
 
 
-class _CALL_REAVE_RES(ISerializable):
+class _CALL_LEAVE_RES(ISerializable):
     """
     This is response message for call reave
     """
@@ -977,9 +980,9 @@ class _CALL_END_NOTI(ISerializable):
         return self.struct_len
 
 
-class _BUNCHH_INFO(ISerializable):
+class _BUNCH_INFO(ISerializable):
     """
-    This is request message for call reave
+    This is Bunch Info message
     """
     def __init__(self, buf=None):
         if buf is None:
@@ -1021,20 +1024,25 @@ class _BUNCHH_INFO(ISerializable):
         print(' Debug > bunch : ', self.bunch)
 
     def GetBytes(self):
+        if self.counter > 0:
+            self.struct_fmt = str.format('!BBH{0}I', self.counter)
         return struct.pack(
             self.struct_fmt,
             *(
                 self.cmd,
                 self.reserve1,
                 self.counter,
-                self.bunch,
+                *(self.bunch),
             ))
 
     def GetSize(self):
+        if self.counter > 0:
+            self.struct_fmt = str.format('!BBH{0}I', self.counter)
+        self.struct_len = struct.calcsize(self.struct_fmt)
         return self.struct_len
 
 
-class _CALL_AUDIO_REQ(ISerializable):
+class _CALL_AUDIT_REQ(ISerializable):
     """
     This is request message for call reave
     """
@@ -1066,7 +1074,7 @@ class _CALL_AUDIO_REQ(ISerializable):
         return struct.pack(
             self.struct_fmt,
             *(
-                self.reserve2,
+                self.call_type,
                 self.r_call_id,
             ))
 
@@ -1074,7 +1082,7 @@ class _CALL_AUDIO_REQ(ISerializable):
         return self.struct_len
 
 
-class _CALL_AUDIO_RES(ISerializable):
+class _CALL_AUDIT_RES(ISerializable):
     """
     This is request message for call reave
     """
@@ -1110,7 +1118,7 @@ class _CALL_AUDIO_RES(ISerializable):
         return struct.pack(
             self.struct_fmt,
             *(
-                self.reserve2,
+                self.call_type,
                 self.r_call_id,
                 self.result,
                 self.expire_time,

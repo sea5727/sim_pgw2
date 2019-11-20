@@ -2,7 +2,7 @@
 from twisted.internet import stdio, reactor
 from twisted.protocols import basic
 from pgw_protocol import sessions
-import scenario
+import proc
 
 
 class CommandProtocol(basic.LineReceiver):
@@ -38,23 +38,25 @@ class CommandProtocol(basic.LineReceiver):
 
     def do_help(self, command=None):
         """help [command]: List commands, or show help on the given command"""
-        if command:
-            doc = getattr(self, 'do_' + command).__doc__
-            self.sendLine(doc.encode("ascii"))
-        else:
+        if command is None:
             commands = [cmd[3:].encode("ascii")
                         for cmd in dir(self)
                         if cmd.startswith('do_')]
-            self.sendLine(b"Valid commands: " + b" ".join(commands))
+            self.sendLine(b"cmd list :  " + b" ".join(commands))
+        else:
+            doc = getattr(self, 'do_' + command).__doc__
+            self.sendLine(doc.encode("ascii"))
 
     def do_server(self, *args):
+        """client: Proc like server"""
         func = '_'.join(args)
-        method = getattr(scenario, func, lambda: 'Invalid scenario')
+        method = getattr(proc, func, lambda: 'Invalid proc')
         method(sessions['server'])
 
     def do_client(self, *args):
+        """client: Proc like client"""
         func = '_'.join(args)
-        method = getattr(scenario, func, lambda: 'Invalid scenario')
+        method = getattr(proc, func, lambda: 'Invalid proc')
         method(sessions['client'])
 
     def send_msg(self, sock, msg):
@@ -67,9 +69,6 @@ class CommandProtocol(basic.LineReceiver):
                 sock, msg
             ))
 
-    def do_call(self):
-        """mytest: call setup req"""
-        scenario.testfunc()
 
     def do_quit(self):
         """quit: Quit this session"""
