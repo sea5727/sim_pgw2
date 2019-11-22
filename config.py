@@ -1,11 +1,12 @@
 import configparser
 
+
 class Config:
 
     def __init__(self):
-        self.config =  configparser.ConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.read('./config.ini')
-    
+
     @property
     def open_ip(self):
         return self.config['SERVER']['ip'] if self.config.has_option('SERVER', 'ip') else '0.0.0.0'
@@ -24,6 +25,7 @@ class Config:
 
     @property
     def mode(self):
-        return self.config['PGW']['mode'] if self.config.has_option('PGW', 'mode') else 'commnad' 
+        return self.config['PGW']['mode'] if self.config.has_option('PGW', 'mode') else 'commnad'
+
 
 pgwConfig = Config()

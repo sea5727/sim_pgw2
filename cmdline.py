@@ -2,6 +2,7 @@
 from twisted.internet import stdio, reactor
 from twisted.protocols import basic
 from pgw_protocol import sessions
+from util import Util
 import proc
 
 
@@ -43,6 +44,7 @@ class CommandProtocol(basic.LineReceiver):
                         for cmd in dir(self)
                         if cmd.startswith('do_')]
             self.sendLine(b"cmd list :  " + b" ".join(commands))
+            self.print_main()
         else:
             doc = getattr(self, 'do_' + command).__doc__
             self.sendLine(doc.encode("ascii"))
@@ -69,11 +71,35 @@ class CommandProtocol(basic.LineReceiver):
                 sock, msg
             ))
 
-
     def do_quit(self):
         """quit: Quit this session"""
         self.sendLine(b'Goodbye.')
         self.transport.loseConnection()
+
+    def do_set(self, *args):
+        getattr(self, args[0])(args[1])
+
+    def hb(self, on_off):
+        if on_off == 'on' or on_off == 'off':
+            Util.hb = on_off
+
+    def callid(self, number):
+        Util.callid = int(number)
+
+    def auto(self, on_off):
+        if on_off == 'on' or on_off == 'off':
+            Util.automode = on_off
+
+    def print_main(self):
+        print(" ")
+        print("     help")
+        print("     quit")
+        print("     set hb [on/off] [{0}]".format(Util.hb))
+        print("     set auto [on/off] [{0}]".format(Util.automode))
+        print("     set callid [number] [{0}]".format(Util.callid))
+        print("     client [function_name]")
+        print("     server [function_name]")
+        print(" ")
 
     # def do_check(self, url):
     #     """check <url>: Attempt to download the given web page"""

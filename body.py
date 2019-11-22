@@ -4,7 +4,7 @@ from pgw_define import _CALL_TYPE
 
 
 __all__ = [
-    '_GW_STAUS', 
+    '_GW_STATUS',
     '_CALL_SETUP_REQ',
     '_CALL_SETUP_RES',
     '_MEDIA_ON_REQ',
@@ -33,10 +33,18 @@ __all__ = [
 switcher = {calltype.value: calltype.name for calltype in _CALL_TYPE}   # make dict ex) key:1, value:_CT_PRIVATE
 
 
-class _GW_STAUS(ISerializable):
+class _GW_STATUS(ISerializable):
     """
     This is request message for call reave
     """
+    KeepAliveRequest = 1
+    KeepAliveResponse = 2
+    ChangeState = 3
+
+    Undefined = 0
+    ConnectedWithPTALKServer = 1
+    DisconnectedWithPTALKServer = 2
+
     def __init__(self, buf=None):
         if buf is None:
             return
@@ -75,8 +83,6 @@ class _CALL_SETUP_REQ(ISerializable):
     """
     This is request message for call setup
     """
-    # switcher = {calltype.value: calltype.name for calltype in _CALL_TYPE}   # make dict ex) key:1, value:_CT_PRIVATE
-
     def __init__(self, buf=None):
         if buf is None:
             return
@@ -1008,6 +1014,7 @@ class _BUNCH_INFO(ISerializable):
         if buf is None:
             self.datas = [0] * 3
             self.datas.append([])
+            self.set_msg(self.datas)
         else:
             self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
             bunch_cnt = self.datas[2]
@@ -1020,6 +1027,7 @@ class _BUNCH_INFO(ISerializable):
                 self.struct_len = struct.calcsize(self.struct_fmt)
             else:
                 self.datas.append([])
+            self.set_msg(self.datas)
 
     def Init(self):
         self.struct_fmt = '!BBH'
