@@ -8,7 +8,7 @@ class Pgw2ClientFactory(protocol.ReconnectingClientFactory):
 
     def buildProtocol(self, addr):
         self.resetDelay()
-        self.protocol = Pgw2Protocol(sessions)
+        self.protocol = Pgw2Protocol(sessions, 'CLIENT')
         sessions['client'] = self.protocol
         return self.protocol
 

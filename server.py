@@ -5,7 +5,7 @@ from pgw_protocol import Pgw2Protocol, sessions
 class Pgw2ServerFactory(protocol.ServerFactory):
     def buildProtocol(self, addr):
 
-        self.protocol = Pgw2Protocol(sessions)
+        self.protocol = Pgw2Protocol(sessions, 'SERVER')
         sessions['server'] = self.protocol
         return self.protocol
 

@@ -6,20 +6,46 @@ import struct
 import sys
 
 
+__all__ = [
+    'send_call_setup_req', 
+    'send_call_setup_res', 
+    'send_media_on_noti', 
+    'send_media_off_noti', 
+    'send_media_on_req', 
+    'send_media_on_res', 
+    'send_media_off_req', 
+    'send_media_off_res', 
+    'send_call_leave_req', 
+    'send_call_leave_res',
+    'send_call_end_noti',
+    'send_bunch_info',
+    ]
+
 test_ip = '192.168.0.166'
 
+def send_gw_status(session, cmd=1, state=1):
+    gs = _GW_STAUS()
+    gs.cmd = cmd
+    gs.state = state
+    msg = _MESSAGE(gs)
+    msg.body.PrintDump()
+    print('send(len:{0}) msg : {1}'.format(
+        msg.GetSize(),
+        msg.GetBytes()))
+    session.transport.write(msg.GetBytes())
+    
 
-def send_call_setup_req(session):
+def send_call_setup_req(session, calltype=_CALL_TYPE._CT_PRIVATE, priority=1, reserve2=2, s_call_id=3, o_ssid=4, t_ssid=5, media_ip='127.0.0.1', media_port=7):
     print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
     req = _CALL_SETUP_REQ()
-    req.Init(_CALL_TYPE._CT_PRIVATE)
-    req.priority = 1
-    req.reserve2 = 2
-    req.s_call_id = 3
-    req.o_ssid = 4
-    req.t_ssid = 5
-    req.media_ip = struct.unpack('=I', socket.inet_aton(test_ip))[0]
-    req.media_port = 7
+    req.Init(calltype)
+    req.priority = priority
+    req.reserve2 = reserve2
+    req.s_call_id = s_call_id
+    req.o_ssid = o_ssid
+    req.t_ssid = t_ssid
+    req.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
+    req.media_port = media_port
 
     msg = _MESSAGE(req)
     msg.body.PrintDump()
@@ -29,16 +55,16 @@ def send_call_setup_req(session):
     session.transport.write(msg.GetBytes())
 
 
-def send_call_setup_res(session):
+def send_call_setup_res(session, calltype=_CALL_TYPE._CT_PRIVATE, result=0, reserve2=1, s_call_id=2, r_call_id=3, media_ip='127.0.0.1', media_port=5):
     print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
     res = _CALL_SETUP_RES()
-    res.Init(_CALL_TYPE._CT_PRIVATE)
-    res.result = 0
-    res.reserve2 = 1
-    res.s_call_id = 2
-    res.r_call_id = 3
-    res.media_ip = struct.unpack('=I', socket.inet_aton(test_ip))[0]
-    res.media_port = 5
+    res.Init(calltype)
+    res.result = result
+    res.reserve2 = reserve2
+    res.s_call_id = s_call_id
+    res.r_call_id = r_call_id
+    res.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
+    res.media_port = media_port
 
     msg = _MESSAGE(res)
     msg.body.PrintDump()

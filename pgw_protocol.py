@@ -1,10 +1,11 @@
+from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol
 from body import *
 from header import _PGW_MSG_HEAD
 from message import _MESSAGE
 from pgw_define import _MESSAGE_ID, _CALL_TYPE
-
-
+from proc import *
+from util import Util
 sessions = {
     'server': None,
     'client': None,
@@ -14,19 +15,21 @@ sessions = {
 class Pgw2Protocol(Protocol):
     count = 0
 
-    def __init__(self, s):
+    def __init__(self, s, name):
         self.sessions = s
+        self.name = name
 
     def connectionMade(self):
         self.count += 1
         print(self.transport.socket)
-        print('connectionMade{0}'.format(self.count))
+        print('{0} connectionMade{1}'.format(self.name, self.count))
+        # LoopingCall(lambda : )
 
     def connectionLost(self, reason):
-        print('connectionLost reason:{0}'.format(reason))
+        print('{0} connectionLost reason:{1}'.format(self.name, reason))
 
     def dataReceived(self, data):
-        print('Total Recv (len:{0})'.format(len(data)))
+        print('{0} Total Recv (len:{1})'.format(self.name, len(data)))
         while len(data) > 4:
             h = _PGW_MSG_HEAD(data[0:4])
             h.PrintDump()
@@ -36,30 +39,9 @@ class Pgw2Protocol(Protocol):
                 calltype = _CALL_TYPE(data[h.GetSize():h.GetSize() + 1][0])
                 req_pri = _CALL_SETUP_REQ(data[h.GetSize():h.GetSize() + h.length])
                 req_pri.PrintDump()
-
-                res = _CALL_SETUP_RES()
-                res.Init(calltype)
-                res.result = 0
-                res.reserve2 = 1
-                res.s_call_id = 2
-                res.r_call_id = 3
-                res.media_ip = 4
-                res.media_port = 5
-                res.PrintDump()
-
-                msg = _MESSAGE(res)
-                print('send(len:{0}) : {1}'.format(msg.GetSize(), msg.GetBytes()))
-                self.transport.write(msg.GetBytes())
-
-                noti = _MEDIA_ON_NOTI()
-                noti.Init(calltype)
-                noti.reserve1 = 1
-                noti.reserve2 = 2
-                noti.r_call_id = 3
-                noti.o_ssid = 4
-                rpt = _MESSAGE(noti)
-                print('send(len:{0}) : {1}'.format(rpt.GetSize(), rpt.GetBytes()))
-                self.transport.write(rpt.GetBytes())
+                
+                call_id = Util.makeCallId()
+                send_call_setup_res(self, req_pri.call_type, 0, 0, req_pri.s_call_id, call_id, '192.168.0.166', call_id)
                 return
             if msgid is _MESSAGE_ID._CALL_SETUP_RES:
                 print('recv : call setup res')
