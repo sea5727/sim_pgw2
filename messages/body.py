@@ -1,6 +1,6 @@
-from ISerializable import ISerializable
+from messages.ISerializable import ISerializable
 import struct
-from pgw_define import _CALL_TYPE
+from define.pgw_define import _CALL_TYPE
 
 
 __all__ = [

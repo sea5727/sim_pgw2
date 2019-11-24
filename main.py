@@ -1,8 +1,9 @@
+
 from twisted.internet import reactor, stdio
 from client import Pgw2ClientFactory
 from server import Pgw2ServerFactory
 from cmdline import CommandProtocol
-from config import pgwConfig
+from config.configure import pgwConfig
 import sys
 
 

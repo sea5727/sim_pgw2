@@ -28,16 +28,16 @@ class _CALL_TYPE(enum.Enum):
     _CT_RPC = 6
 
 
-def main():
-    from messages import _CALL_SETUP_REQ
-    p = _CALL_SETUP_REQ(b'abcdefasdasdfasdf12345')
-    p.testprint()
-    # p = pgw_define._PGW_MSG_HEAD(b'aaaabcddeeeeffffgggghhhhii')
-    p.testprint()
-    buf = p.Pack()
-    print(buf)
+# def main():
+#     from .messages import _CALL_SETUP_REQ
+#     p = _CALL_SETUP_REQ(b'abcdefasdasdfasdf12345')
+#     p.testprint()
+#     # p = pgw_define._PGW_MSG_HEAD(b'aaaabcddeeeeffffgggghhhhii')
+#     p.testprint()
+#     buf = p.Pack()
+#     print(buf)
 
 
-# this only runs if the module was *not* imported
-if __name__ == '__main__':
-    main()
+# # this only runs if the module was *not* imported
+# if __name__ == '__main__':
+#     main()

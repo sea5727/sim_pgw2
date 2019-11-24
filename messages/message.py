@@ -1,7 +1,7 @@
-from header import _PGW_MSG_HEAD
-from pgw_define import _MESSAGE_ID
-from pgw_define import _CALL_TYPE
-from ISerializable import ISerializable
+from messages.header import _PGW_MSG_HEAD
+from define.pgw_define import _MESSAGE_ID
+from define.pgw_define import _CALL_TYPE
+from messages.ISerializable import ISerializable
 
 class_to_msgid = {msg_id.name: msg_id.value for msg_id in _MESSAGE_ID}
 

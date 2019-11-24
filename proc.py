@@ -1,4 +1,4 @@
-from body import (
+from messages.body import (
     _GW_STATUS,
     _CALL_SETUP_REQ,
     _CALL_SETUP_RES,
@@ -14,8 +14,8 @@ from body import (
     _BUNCH_INFO,
     _CALL_AUDIT_REQ,
     _CALL_AUDIT_RES)
-from message import _MESSAGE
-from pgw_define import _CALL_TYPE
+from messages.message import _MESSAGE
+from define.pgw_define import _CALL_TYPE
 import socket
 import struct
 import sys

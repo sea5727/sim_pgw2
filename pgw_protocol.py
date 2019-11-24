@@ -1,8 +1,8 @@
 from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol
-from header import _PGW_MSG_HEAD
-from pgw_define import _MESSAGE_ID, _CALL_TYPE
-import body
+from messages.header import _PGW_MSG_HEAD
+from define.pgw_define import _MESSAGE_ID, _CALL_TYPE
+import messages.body
 import proc
 from util import Util
 

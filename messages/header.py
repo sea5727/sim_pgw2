@@ -1,4 +1,4 @@
-from ISerializable import ISerializable
+from messages.ISerializable import ISerializable
 import struct
 
 
