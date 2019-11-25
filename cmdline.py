@@ -2,13 +2,21 @@
 from twisted.internet import stdio, reactor
 from twisted.protocols import basic
 from pgw_protocol import sessions
+from messages import body
+from call.CallManager import CallManager
 from util import Util
 import proc
+import socket
+import struct
 
 
 class CommandProtocol(basic.LineReceiver):
     delimiter = b'\n'   # unix terminal style newlines. remove this line
     # for use with Telnet
+    def __init__(self):
+        super().__init__()
+        self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
+
 
     def connectionMade(self):
         self.sendLine(b"cmd console. Type 'help' for help.")
@@ -53,13 +61,15 @@ class CommandProtocol(basic.LineReceiver):
         """client: Proc like server"""
         func = '_'.join(args)
         method = getattr(proc, func, lambda: 'Invalid proc')
-        method(sessions['server'])
+        classname = '_' + '_'.join(args[1:]).upper()        
+        method(session=sessions['server'], body=self.messages[classname])
 
     def do_client(self, *args):
         """client: Proc like client"""
         func = '_'.join(args)
         method = getattr(proc, func, lambda: 'Invalid proc')
-        method(sessions['client'])
+        classname = '_' + '_'.join(args[1:]).upper()
+        method(session=sessions['client'], body=self.messages[classname])
 
     def send_msg(self, sock, msg):
         if sock is None:
@@ -77,16 +87,76 @@ class CommandProtocol(basic.LineReceiver):
         self.transport.loseConnection()
 
     def do_set(self, *args):
-        getattr(self, args[0])(args[1])
+        """set: set args"""
+        getattr(self, 'set_' + args[0])(*args[1:])
 
-    def hb(self, on_off):
+    def do_show(self, *args):
+        """show: print infomation"""
+        if args[0] == 'call':
+            if args[1] == 'status':
+                CallManager.printCallStatus()
+                return
+        if args[0] == 'message':
+            if args[1] == 'all':
+                for msg_key in self.messages:
+                    self.messages[msg_key].PrintDump()
+                return
+            msgname = '_'.join(args[1:]).upper()
+            if msgname not in self.messages:
+                if '_' + msgname in self.messages:
+                    msgname = '_' + msgname
+            self.messages[msgname].PrintDump()
+                
+    def set_message(self, *args):
+        set_value = []
+        cmd_list = list(args)
+        
+        for cmd in args:
+            if '=' in cmd:
+                set_value.append(cmd)
+                cmd_list.remove(cmd)
+
+        msgname = '_'.join(cmd_list).upper()
+        if msgname not in self.messages:
+            if '_' + msgname in self.messages:
+                msgname = '_' + msgname
+
+        for setter in set_value:
+            set = setter.split('=')
+            cur_value = getattr(self.messages[msgname], set[0])
+            if set[0] == 's_call_id' and type(self.messages[msgname]) is body._CALL_SETUP_REQ: 
+                print('use set callid instead set message')
+                return
+            if set[0] == 'call_type':
+                print('if you set call_type, this message is clear')
+                self.messages[msgname] = getattr(body, msgname)().Init(int(set[1]))
+                self.messages[msgname].PrintDump()
+                return
+            if set[0] == 'media_ip':
+                setattr(self.messages[msgname], set[0], struct.unpack('=I', socket.inet_aton(set[1]))[0] )
+                self.messages[msgname].PrintDump()
+                return
+            # print('cur value:{0}, cur type:{1}, new value:{2}, new type:{3}'.format(cur_value, type(cur_value), set[1], type(set[1])))
+            setattr(self.messages[msgname], set[0], int(set[1]))
+
+        self.messages[msgname].PrintDump()
+
+    def set_printf(self, *args):
+        on_off = args[0]
+        if on_off == 'on' or on_off == 'off':
+            Util.printf = on_off
+
+    def set_hb(self, *args):
+        on_off = args[0]
         if on_off == 'on' or on_off == 'off':
             Util.hb = on_off
 
-    def callid(self, number):
-        Util.callid = int(number)
+    def set_callid(self, *args):
+        number = args[0]
+        CallManager.CallId = int(number)
 
-    def auto(self, on_off):
+    def set_auto(self, *args):
+        on_off = args[0]
         if on_off == 'on' or on_off == 'off':
             Util.automode = on_off
 
@@ -94,9 +164,13 @@ class CommandProtocol(basic.LineReceiver):
         print(" ")
         print("     help")
         print("     quit")
-        print("     set hb [on/off] [{0}]".format(Util.hb))
+        print("     show message [msgname]")
+        print("     show call [status]")
         print("     set auto [on/off] [{0}]".format(Util.automode))
-        print("     set callid [number] [{0}]".format(Util.callid))
+        print("     set hb [on/off] [{0}]".format(Util.hb))
+        print("     set rtp [on/off] [{0}]".format(Util.rtp))
+        print("     set printf [on/off] [{0}]".format(Util.printf))
+        print("     set callid [number] [{0}]".format(CallManager.CallId))
         print("     client [function_name]")
         print("     server [function_name]")
         print(" ")

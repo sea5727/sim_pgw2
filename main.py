@@ -4,10 +4,19 @@ from client import Pgw2ClientFactory
 from server import Pgw2ServerFactory
 from cmdline import CommandProtocol
 from config.configure import pgwConfig
+from util import Util
 import sys
 
 
 def main():
+    # main.py open_port connect_ip connect_port automode(on/off) hb(on/off) rtp(on/off)
+    # args > config.ini 순으로 적용
+    
+    Util.automode = pgwConfig.automode
+    Util.hb = pgwConfig.hb
+    Util.rtp = pgwConfig.rtp
+    Util.printf = pgwConfig.printf
+
     for args in sys.argv:
         print(args)
     open_port = pgwConfig.open_port

@@ -15,12 +15,12 @@ class Pgw2ClientFactory(protocol.ReconnectingClientFactory):
     def clientConnectionFailed(self, connector, reason):
         # reactor.callLater(0.5, self.TryReconnect, connector)
         self.maxDelay = 0.5
-        print("Connection failed {0}:{1}, state:{2} tryCount:{3} delay:{4}".format(
-            connector.host,
-            connector.port,
-            connector.state,
-            self.retries,
-            self.delay))
+        # print("Connection failed {0}:{1}, state:{2} tryCount:{3} delay:{4}".format(
+        #     connector.host,
+        #     connector.port,
+        #     connector.state,
+        #     self.retries,
+        #     self.delay))
         super().clientConnectionFailed(connector, reason)
 
 

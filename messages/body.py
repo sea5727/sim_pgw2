@@ -18,8 +18,6 @@ __all__ = [
     '_CALL_LEAVE_RES',
     '_CALL_END_NOTI',
     '_BUNCH_INFO',
-    '_CALL_AUDIT_REQ',
-    '_CALL_AUDIT_RES'
     ]
 
 # PRIVATE : BBHIIIIH
@@ -58,14 +56,17 @@ class _GW_STATUS(ISerializable):
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 2
         self.set_msg(self.datas)
+        return self
 
     def set_msg(self, datas):
         self.cmd = datas[0]
         self.state = datas[1]
 
     def PrintDump(self):
-        print(' Debug > cmd : ', self.cmd)
-        print(' Debug > state : ', self.state)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('cmd : ', self.cmd, end=', ')
+        print('state : ', self.state, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -92,13 +93,15 @@ class _CALL_SETUP_REQ(ISerializable):
         getattr(self, classname).init(self, buf)
         getattr(self, classname).set_msg(self, self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         classname = switcher.get(calltype, lambda: "Invalid CallType")
         getattr(self, classname).init(self)
         getattr(self, classname).set_msg(self, self.datas)
-        return
+        return self
 
     def PrintDump(self):
         classname = switcher.get(self.call_type, lambda: "Invalid CallType")
@@ -135,14 +138,16 @@ class _CALL_SETUP_REQ(ISerializable):
             self.media_port = datas[7]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > priority : ', self.priority)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > o_ssid : ', self.o_ssid)
-            print(' Debug > t_ssid : ', self.t_ssid)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('priority : ', self.priority, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('o_ssid : ', self.o_ssid, end=', ')
+            print('t_ssid : ', self.t_ssid, end=', ')
+            print('media_ip : ', self.media_ip, end=', ')
+            print('media_port : ', self.media_port, end=', ')
+            print('', end ='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -184,14 +189,16 @@ class _CALL_SETUP_REQ(ISerializable):
             self.media_port = datas[7]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > priority : ', self.priority)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > o_ssid : ', self.o_ssid)
-            print(' Debug > bunch_group : ', self.bunch_group)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ' )
+            print('priority : ', self.priority, end=', ' )
+            print('reserve2 : ', self.reserve2, end=', ' )
+            print('s_call_id : ', self.s_call_id, end=', ' )
+            print('o_ssid : ', self.o_ssid, end=', ' )
+            print('bunch_group : ', self.bunch_group, end=', ' )
+            print('media_ip : ', self.media_ip, end=', ' )
+            print('media_port : ', self.media_port, end=', ' )
+            print('', end='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -233,14 +240,16 @@ class _CALL_SETUP_REQ(ISerializable):
             self.media_port = datas[7]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > priority : ', self.priority)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > o_ssid : ', self.o_ssid)
-            print(' Debug > bunch_group : ', self.bunch_group)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('priority : ', self.priority, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('o_ssid : ', self.o_ssid, end=', ')
+            print('bunch_group : ', self.bunch_group, end=', ')
+            print('media_ip : ', self.media_ip, end=', ')
+            print('media_port : ', self.media_port, end=', ')
+            print('', end='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -294,15 +303,17 @@ class _CALL_SETUP_REQ(ISerializable):
             self.mem_list = datas[8]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > priority : ', self.priority)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > o_ssid : ', self.o_ssid)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
-            print(' Debug > mem_cnt : ', self.mem_cnt)
-            print(' Debug > mem_list : ', self.mem_list)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('priority : ', self.priority, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('o_ssid : ', self.o_ssid, end=', ')
+            print('media_ip : ', self.media_ip, end=', ')
+            print('media_port : ', self.media_port, end=', ')
+            print('mem_cnt : ', self.mem_cnt, end=', ')
+            print('mem_list : ', self.mem_list, end=', ')
+            print('', end='\n')
 
         def GetBytes(self):
             if self.mem_cnt > 0:
@@ -348,12 +359,14 @@ class _CALL_SETUP_REQ(ISerializable):
             self.t_ssid = datas[5]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > reserve1 : ', self.reserve1)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > o_ssid : ', self.o_ssid)
-            print(' Debug > t_ssid : ', self.t_ssid)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('reserve1 : ', self.reserve1, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('o_ssid : ', self.o_ssid, end=', ')
+            print('t_ssid : ', self.t_ssid, end=', ')
+            print('', end='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -394,15 +407,17 @@ class _CALL_SETUP_REQ(ISerializable):
             self.rpc_para = datas[8]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > reserve1 : ', self.reserve1)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > o_ssid : ', self.o_ssid)
-            print(' Debug > t_ssid : ', self.t_ssid)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
-            print(' Debug > rpc_para : ', self.rpc_para)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('reserve1 : ', self.reserve1, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('o_ssid : ', self.o_ssid, end=', ')
+            print('t_ssid : ', self.t_ssid, end=', ')
+            print('media_ip : ', self.media_ip, end=', ')
+            print('media_port : ', self.media_port, end=', ')
+            print('rpc_para : ', self.rpc_para, end=', ')
+            print('', end='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -436,7 +451,9 @@ class _CALL_SETUP_RES(ISerializable):
         getattr(self, classname).init(self, buf)
         getattr(self, classname).set_msg(self, self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         classname = switcher.get(calltype, lambda: "Invalid CallType")
@@ -444,7 +461,7 @@ class _CALL_SETUP_RES(ISerializable):
         getattr(self, classname).set_msg(self, self.datas)
         # self._CT_COMMON.init(self)
         # self._CT_COMMON.set_msg(self, self.datas)
-        return
+        return self
 
     def PrintDump(self):
         classname = switcher.get(self.call_type, lambda: "Invalid CallType")
@@ -480,13 +497,15 @@ class _CALL_SETUP_RES(ISerializable):
             self.media_port = datas[6]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > result : ', self.result)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > r_call_id : ', self.r_call_id)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('result : ', self.result, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('r_call_id : ', self.r_call_id, end=', ')
+            print('media_ip : ', self.media_ip, end=', ')
+            print('media_port : ', self.media_port, end=', ')
+            print('', end='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -552,14 +571,16 @@ class _CALL_SETUP_RES(ISerializable):
             self.v_rate = datas[7]
 
         def PrintDump(self):
-            print(' Debug > call_type : ', self.call_type)
-            print(' Debug > result : ', self.result)
-            print(' Debug > reserve2 : ', self.reserve2)
-            print(' Debug > s_call_id : ', self.s_call_id)
-            print(' Debug > r_call_id : ', self.r_call_id)
-            print(' Debug > media_ip : ', self.media_ip)
-            print(' Debug > media_port : ', self.media_port)
-            print(' Debug > v_rate : ', self.v_rate)
+            print('[{0}]'.format(self.__class__.__name__), end=' ')
+            print('call_type : ', self.call_type, end=', ')
+            print('result : ', self.result, end=', ')
+            print('reserve2 : ', self.reserve2, end=', ')
+            print('s_call_id : ', self.s_call_id, end=', ')
+            print('r_call_id : ', self.r_call_id, end=', ')
+            print('media_ip : ', self.media_ip, end=', ')
+            print('media_port : ', self.media_port, end=', ')
+            print('v_rate : ', self.v_rate, end=', ')
+            print('', end='\n')
 
         def GetBytes(self):
             return struct.pack(
@@ -591,13 +612,16 @@ class _MEDIA_ON_REQ(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHII'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 5
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -607,11 +631,13 @@ class _MEDIA_ON_REQ(ISerializable):
         self.o_ssid = datas[4]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > o_priority : ', self.o_priority)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
-        print(' Debug > o_ssid : ', self.o_ssid)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('o_priority : ', self.o_priority, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('o_ssid : ', self.o_ssid, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -640,13 +666,16 @@ class _MEDIA_ON_RES(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHII'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 5
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -656,11 +685,13 @@ class _MEDIA_ON_RES(ISerializable):
         self.o_ssid = datas[4]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > result : ', self.result)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
-        print(' Debug > o_ssid : ', self.o_ssid)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('result : ', self.result, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('o_ssid : ', self.o_ssid, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -689,13 +720,16 @@ class _MEDIA_OFF_REQ(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -704,10 +738,12 @@ class _MEDIA_OFF_REQ(ISerializable):
         self.r_call_id = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > reserve1 : ', self.reserve1)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('reserve1 : ', self.reserve1, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -735,13 +771,16 @@ class _MEDIA_OFF_RES(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -750,10 +789,12 @@ class _MEDIA_OFF_RES(ISerializable):
         self.r_call_id = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > result : ', self.result)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('result : ', self.result, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -781,13 +822,16 @@ class _MEDIA_ON_NOTI(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHII'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 5
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -797,11 +841,13 @@ class _MEDIA_ON_NOTI(ISerializable):
         self.o_ssid = datas[4]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > reserve1 : ', self.reserve1)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
-        print(' Debug > o_ssid : ', self.o_ssid)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('reserve1 : ', self.reserve1, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('o_ssid : ', self.o_ssid, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -830,13 +876,16 @@ class _MEDIA_OFF_NOTI(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -845,10 +894,12 @@ class _MEDIA_OFF_NOTI(ISerializable):
         self.r_call_id = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > reason : ', self.reason)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('reason : ', self.reason, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -876,13 +927,16 @@ class _CALL_LEAVE_REQ(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -891,10 +945,12 @@ class _CALL_LEAVE_REQ(ISerializable):
         self.r_call_id = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > reserve1 : ', self.reserve1)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('reserve1 : ', self.reserve1, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -922,13 +978,16 @@ class _CALL_LEAVE_RES(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -937,10 +996,12 @@ class _CALL_LEAVE_RES(ISerializable):
         self.r_call_id = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > result : ', self.result)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('result : ', self.result, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -968,13 +1029,16 @@ class _CALL_END_NOTI(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -983,10 +1047,12 @@ class _CALL_END_NOTI(ISerializable):
         self.r_call_id = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > reason : ', self.reason)
-        print(' Debug > reserve2 : ', self.reserve2)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('reason : ', self.reason, end=', ')
+        print('reserve2 : ', self.reserve2, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -1034,6 +1100,7 @@ class _BUNCH_INFO(ISerializable):
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg(self.datas)
+        return self
 
     def set_msg(self, datas):
         self.cmd = datas[0]
@@ -1042,10 +1109,12 @@ class _BUNCH_INFO(ISerializable):
         self.bunch = datas[3]
 
     def PrintDump(self):
-        print(' Debug > cmd : ', self.cmd)
-        print(' Debug > reserve1 : ', self.reserve1)
-        print(' Debug > counter : ', self.counter)
-        print(' Debug > bunch : ', self.bunch)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('cmd : ', self.cmd, end=', ')
+        print('reserve1 : ', self.reserve1, end=', ')
+        print('counter : ', self.counter, end=', ')
+        print('bunch : ', self.bunch, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         if self.counter > 0:
@@ -1078,21 +1147,26 @@ class _CALL_AUDIT_REQ(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 2
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
         self.r_call_id = datas[1]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > r_call_id : ', self.r_call_id)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
@@ -1118,13 +1192,16 @@ class _CALL_AUDIT_RES(ISerializable):
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
 
-    def Init(self, calltype):
+    def Init(self, calltype=None):
+        if calltype is None:
+            calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
         self.struct_fmt = '!BIBI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
+        return self
 
     def set_msg(self, datas):
         self.call_type = datas[0]
@@ -1133,10 +1210,12 @@ class _CALL_AUDIT_RES(ISerializable):
         self.expire_time = datas[3]
 
     def PrintDump(self):
-        print(' Debug > call_type : ', self.call_type)
-        print(' Debug > r_call_id : ', self.r_call_id)
-        print(' Debug > result : ', self.result)
-        print(' Debug > expire_time : ', self.expire_time)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('call_type : ', self.call_type, end=', ')
+        print('r_call_id : ', self.r_call_id, end=', ')
+        print('result : ', self.result, end=', ')
+        print('expire_time : ', self.expire_time, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(

@@ -4,7 +4,7 @@ import configparser
 class Config:
 
     def __init__(self):
-        self.config = configparser.ConfigParser()
+        self.config = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
         self.config.read('./config.ini')
 
     @property
@@ -24,8 +24,19 @@ class Config:
         return int(self.config['CLIENT']['port']) if self.config.has_option('CLIENT', 'port') else 12345
 
     @property
-    def mode(self):
-        return self.config['PGW']['mode'] if self.config.has_option('PGW', 'mode') else 'commnad'
+    def automode(self):
+        return self.config['PGW']['automode'] if self.config.has_option('PGW', 'automode') else 'off'
 
+    @property
+    def hb(self):
+        return self.config['PGW']['hb'] if self.config.has_option('PGW', 'hb') else 'off'
+
+    @property
+    def rtp(self):
+        return self.config['PGW']['rtp'] if self.config.has_option('PGW', 'rtp') else 'off'
+
+    @property
+    def printf(self):
+        return self.config['PGW']['printf'] if self.config.has_option('PGW', 'printf') else 'off'
 
 pgwConfig = Config()

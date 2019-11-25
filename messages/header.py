@@ -19,9 +19,11 @@ class _PGW_MSG_HEAD(ISerializable):
         self.length = unpacked[2]
 
     def PrintDump(self):
-        print(' Debug > gw_magic : ', self.gw_magic)
-        print(' Debug > gw_msgid : ', self.gw_msgid)
-        print(' Debug > length : ', self.length)
+        print('[{0}]'.format(self.__class__.__name__), end=' ')
+        print('gw_magic : ', self.gw_magic, end=', ')
+        print('gw_msgid : ', self.gw_msgid, end=', ')
+        print('length : ', self.length, end=', ')
+        print('', end='\n')
 
     def GetBytes(self):
         return struct.pack(
