@@ -39,18 +39,20 @@ class Pgw2Protocol(Protocol):
             self.hb.stop()
 
     def dataReceived(self, data):
-        if Util.printf == 'on':
+        import threading
+        print('data recv : ' , threading.currentThread().ident)
+        if Util.std == 'on':
             print('{0} Total Recv (len:{1})'.format(self.name, len(data)))
         while len(data) > 4:
             h = _PGW_MSG_HEAD(data[0:4])
-            if Util.printf == 'on':
+            if Util.std == 'on':
                 h.PrintDump()
             msgid = _MESSAGE_ID(h.gw_msgid)
             message_name = switcher.get(msgid.value, None)
             callid = -1
             msg = getattr(messages.body, message_name)(data[h.GetSize():h.GetSize() + h.length])
             
-            if Util.printf == 'on':
+            if Util.std == 'on':
                 msg.PrintDump()
 
             if Util.hb == 'on':

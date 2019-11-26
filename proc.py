@@ -50,7 +50,7 @@ def send_gw_status(session, body=None, cmd=1, state=1):
         body.state = state
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
             msg.GetSize(),
@@ -72,7 +72,7 @@ def send_call_setup_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, pri
         body.media_port = media_port
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -93,7 +93,7 @@ def send_call_setup_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.media_port = media_port
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -112,7 +112,7 @@ def send_media_on_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, rese
         body.o_ssid = o_ssid
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -130,7 +130,7 @@ def send_media_off_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, rea
         body.r_call_id = r_call_id
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -149,7 +149,7 @@ def send_media_on_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, o_pri
         body.o_ssid = o_ssid
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -168,7 +168,7 @@ def send_media_on_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resul
         body.o_ssid = o_ssid
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -186,7 +186,7 @@ def send_media_off_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, rese
         body.r_call_id = r_call_id
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -204,7 +204,7 @@ def send_media_off_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resu
         body.r_call_id = r_call_id
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -222,7 +222,7 @@ def send_call_leave_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.r_call_id = r_call_id
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -240,7 +240,7 @@ def send_call_leave_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.r_call_id = r_call_id
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -258,7 +258,7 @@ def send_call_end_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resa
         body.r_call_id = r_call_id
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -277,7 +277,7 @@ def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 
         body.bunch = bunch
 
     msg = _MESSAGE(body)
-    if Util.printf == 'on':
+    if Util.std == 'on':
         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
         msg.body.PrintDump()
         print('send(len:{0}) msg : {1}'.format(
@@ -293,7 +293,7 @@ def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 
 #         body.r_call_id = r_call_id
 
 #     msg = _MESSAGE(body)
-#     if Util.printf == 'on':
+#     if Util.std == 'on':
 #         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
 #         msg.body.PrintDump()
 #         print('send(len:{0}) msg : {1}'.format(
@@ -310,7 +310,7 @@ def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 
 #     res.expire_time = 3
 
 #     msg = _MESSAGE(res)
-#     if Util.printf == 'on':
+#     if Util.std == 'on':
 #         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
 #         msg.body.PrintDump()
 #         print('send(len:{0}) msg : {1}'.format(

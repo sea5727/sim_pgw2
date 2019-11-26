@@ -1,11 +1,23 @@
 import configparser
 
-
 class Config:
 
-    def __init__(self):
+    test = None
+
+    def __new__(cls, path=None):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Config, cls).__new__(cls)
+        return cls.instance
+
+    def Init(self, path):
         self.config = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
-        self.config.read('./config.ini')
+        self.config.read(path)      
+  
+    # def __init__(self, path=None):
+        
+    #     self.config = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
+    #     print('__init__path:{0} config:{1}'.format(path, self.config))
+    #     self.config.read(path)
 
     @property
     def open_ip(self):
@@ -36,7 +48,17 @@ class Config:
         return self.config['PGW']['rtp'] if self.config.has_option('PGW', 'rtp') else 'off'
 
     @property
-    def printf(self):
-        return self.config['PGW']['printf'] if self.config.has_option('PGW', 'printf') else 'off'
+    def log(self):
+        return self.config['PGW']['log'] if self.config.has_option('PGW', 'log') else 'off'
 
-pgwConfig = Config()
+    @property
+    def std(self):
+        return self.config['LOG']['std'] if self.config.has_option('LOG', 'std') else 'off'
+
+    @property
+    def log_path(self):
+        return self.config['LOG']['path'] if self.config.has_option('LOG', 'path') else '.pgw2.log'
+
+    @property
+    def log_level(self):
+        return self.config['LOG']['level'] if self.config.has_option('LOG', 'level') else 'DEBUG'

@@ -141,10 +141,20 @@ class CommandProtocol(basic.LineReceiver):
 
         self.messages[msgname].PrintDump()
 
-    def set_printf(self, *args):
+    def set_std(self, *args):
         on_off = args[0]
-        if on_off == 'on' or on_off == 'off':
-            Util.printf = on_off
+        
+        if on_off == 'on':
+            from logger import LogManager
+            LogManager.logger.add_stream_handler()
+            Util.std = on_off
+            return
+
+        if on_off == 'off':
+            from logger import LogManager
+            LogManager.logger.del_stream_handler()
+            Util.std = on_off
+            return
 
     def set_hb(self, *args):
         on_off = args[0]
@@ -169,7 +179,8 @@ class CommandProtocol(basic.LineReceiver):
         print("     set auto [on/off] [{0}]".format(Util.automode))
         print("     set hb [on/off] [{0}]".format(Util.hb))
         print("     set rtp [on/off] [{0}]".format(Util.rtp))
-        print("     set printf [on/off] [{0}]".format(Util.printf))
+        print("     set std [on/off] [{0}]".format(Util.std))
+        print("     set log [on/off] [{0}]".format(Util.log))
         print("     set callid [number] [{0}]".format(CallManager.CallId))
         print("     client [function_name]")
         print("     server [function_name]")
