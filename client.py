@@ -1,26 +1,26 @@
 from twisted.internet import reactor, protocol
 from pgw_protocol import Pgw2Protocol, sessions
-
-
+from config.configure import pgw2Config as config
+from logger import pgw2logger as logger
 class Pgw2ClientFactory(protocol.ReconnectingClientFactory):
 
-    reconnect_count = 0
-
+    protocol = Pgw2Protocol(sessions, 'CLIENT')
     def buildProtocol(self, addr):
         self.resetDelay()
-        self.protocol = Pgw2Protocol(sessions, 'CLIENT')
-        sessions['client'] = self.protocol
-        return self.protocol
+        sessions['client'] = Pgw2ClientFactory.protocol
+        return Pgw2ClientFactory.protocol
 
     def clientConnectionFailed(self, connector, reason):
         # reactor.callLater(0.5, self.TryReconnect, connector)
-        self.maxDelay = 0.5
-        # print("Connection failed {0}:{1}, state:{2} tryCount:{3} delay:{4}".format(
-        #     connector.host,
-        #     connector.port,
-        #     connector.state,
-        #     self.retries,
-        #     self.delay))
+        self.maxDelay = config.reconnect_interval
+        logger.debug('connection failed {0}:{1}, state:{2}, tryCount:{3}, delay:{4}'.format(
+            connector.host,
+            connector.port,
+            connector.state,
+            self.retries,
+            self.delay            
+        ))
+
         super().clientConnectionFailed(connector, reason)
 
 

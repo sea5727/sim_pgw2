@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from twisted.internet import stdio, reactor
-from twisted.protocols import basic
+from twisted.internet.protocol import Protocol
 from pgw_protocol import sessions
 from messages import body
 from call.CallManager import CallManager
@@ -10,7 +10,7 @@ import struct
 from config.configure import pgw2Config as config
 from logger import LogManager as logger
 
-class CommandProtocol(basic.LineReceiver):
+class CommandProtocol(Protocol):
     delimiter = b'\n'   # unix terminal style newlines. remove this line
     # for use with Telnet
     def __init__(self):
@@ -20,6 +20,9 @@ class CommandProtocol(basic.LineReceiver):
 
     def connectionMade(self):
         self.sendLine(b"cmd console. Type 'help' for help.")
+
+    def dataReceived(self, data):
+        print('data Received')
 
     def lineReceived(self, line):
         # Ignore blank lines

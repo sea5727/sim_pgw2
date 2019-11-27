@@ -1,7 +1,7 @@
 import logging
 import logging.handlers as handlers
 import time
-from config.configure import Config
+from config.configure import pgw2Config as config
 
 class LogManager:
     logger = None
@@ -10,11 +10,10 @@ class LogManager:
         if LogManager.logger != None:
             raise Exception("This class is a singleton!")
         else:
-            config = Config()
             LogManager.logger = logging.getLogger('pgw2')
             LogManager.set_loglevel(config.log_level)
 
-            if config.std == 'on':
+            if config.log_stderr == 'on':
                 LogManager.add_stream_handler()
             
             if config.log_path is not None:
@@ -45,7 +44,7 @@ class LogManager:
         if any([handler for handler in LogManager.logger.handlers if type(handler) == logging.StreamHandler]):
             return
         stream_hander = logging.StreamHandler()
-        stream_formatter = logging.Formatter('%(message)s')
+        stream_formatter = logging.Formatter('[%(asctime)s]%(message)s')
         stream_hander.setFormatter(stream_formatter)
         LogManager.logger.addHandler(stream_hander)
 
@@ -61,3 +60,6 @@ class LogManager:
         if LogManager.logger == None:
             LogManager()
         return LogManager.logger
+
+
+pgw2logger = LogManager.getInstance()

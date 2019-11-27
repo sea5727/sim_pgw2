@@ -1,45 +1,69 @@
 
-from twisted.internet import reactor, stdio
-from client import Pgw2ClientFactory
-from server import Pgw2ServerFactory
-from cmdline import CommandProtocol
-from config.configure import Config
-from util import Util
-import sys
-from logger import LogManager
+
 
 
 def main():
-    # main.py open_port connect_ip connect_port automode(on/off) hb(on/off) rtp(on/off)
-    # args > config.ini 순으로 적용
-    config = Config()
-    config.Init('./config.ini')
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config-file')
+    parser.add_argument('-s', '--config-section')
+    parser.add_argument('-L', '--log-level', help="DEBUG/INFO/FATAL")
+    parser.add_argument('-E', '--log-stderr', action='store_true')
+    parser.add_argument('-f', '--background', action='store_true')
+    parser.add_argument("-i", "--connect-ip")
+    parser.add_argument("-p", "--connect-port")
+    parser.add_argument("-l", "--listen-port")
     
-    logger = LogManager.getInstance()
+    args = parser.parse_args()
+
+    from config.configure import pgw2Config as config
+
+    if args.config_file:
+        if args.config_section is None:
+            raise Exception('input config-section')
+        config.Init(args.config_file, args.config_section)
+    else: 
+        config.InitDefault()
+        config.manual_log_level = args.log_level if args.log_level is not None else config.manual_log_level
+
+        config.manual_log_stderr = args.log_stderr if args.log_stderr is not None else config.manual_log_stderr
+        if config.manual_log_stderr == False:
+            config.manual_log_stderr = 'off'
+
+        config.manual_background = args.background if args.background is not None else config.manual_background
+        if config.manual_background == False:
+            config.manual_background = 'off'
+
+        config.manual_connect_ip = args.connect_ip if args.connect_ip is not None else config.manual_connect_ip
+
+        config.manual_connect_port = args.connect_port if args.connect_port is not None else config.manual_connect_port
+
+        config.manual_listen_port = args.listen_port if args.listen_port is not None else config.manual_listen_port
+
+    from logger import pgw2logger as logger
     logger.info('######## START ##########')
 
-    Util.automode = config.automode
-    Util.hb = config.hb
-    Util.rtp = config.rtp
-    Util.std = config.std
-    Util.log = config.log
-
-    for args in sys.argv:
-        logger.info('system args : {0}'.format(args))
-    open_port = config.open_port
+    listen_port = config.listen_port
     connect_port = config.connect_port
 
-    if len(sys.argv) > 1 and sys.argv[1]:
-        open_port = int(sys.argv[1])
-    if len(sys.argv) > 2 and sys.argv[2]:
-        connect_port = int(sys.argv[2])
 
-    logger.info('open port : {0}, connect port : {1}'.format(open_port, connect_port))
+    logger.info('open port : {0}, connect port : {1}'.format(listen_port, connect_port))
+    from twisted.internet import reactor, stdio
+    from server import Pgw2ServerFactory
+    from client import Pgw2ClientFactory
+    from cmdline import CommandProtocol
+
     stdio.StandardIO(CommandProtocol())
-    reactor.listenTCP(open_port, Pgw2ServerFactory())
+    reactor.listenTCP(listen_port, Pgw2ServerFactory())
     reactor.connectTCP(config.connect_ip, connect_port, Pgw2ClientFactory())
-    reactor.run()
 
+
+    # while 1:
+    #     import readline
+    #     a = input(" > ")
+    #     print("You entered ", a)
+
+    reactor.run()
 
 if __name__ == '__main__':
     main()

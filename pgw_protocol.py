@@ -6,9 +6,9 @@ import messages.body
 import proc
 import socket
 import struct
-from util import Util
 from call.CallManager import CallManager
-
+from config.configure import pgw2Config as config
+from logger import pgw2logger as logger
 
 sessions = {
     'server': None,
@@ -29,46 +29,45 @@ class Pgw2Protocol(Protocol):
         self.count += 1
         print(self.transport.socket)
         print('{0} connectionMade{1}'.format(self.name, self.count))
-        if self.name == 'CLIENT':
+        if self.name == 'CLIENT' and config.flag_hb == 'on':
             self.hb = LoopingCall(proc.send_gw_status, self, cmd=1, state=1)
             self.hb.start(10, now=True)
 
     def connectionLost(self, reason):
         print('{0} connectionLost reason:{1}'.format(self.name, reason))
-        if self.name == 'CLIENT' and self.hb is not None:
+        if self.name != 'CLIENT':
+            return
+        if hasattr(self, 'hb') and self.hb is not None:
             self.hb.stop()
 
     def dataReceived(self, data):
-        import threading
-        print('data recv : ' , threading.currentThread().ident)
-        if Util.std == 'on':
-            print('{0} Total Recv (len:{1})'.format(self.name, len(data)))
+        logger.debug('RECV < [len:{0}] ({1}) : '.format(len(data), self.name))
+
         while len(data) > 4:
             h = _PGW_MSG_HEAD(data[0:4])
-            if Util.std == 'on':
-                h.PrintDump()
+            logger.debug('RECV < Header : [len:{0}, {1}] ({2}) : '.format(h.GetSize(), h.GetBytes(), self.name))
+            logger.debug('RECV < ' + h.StringDump())
             msgid = _MESSAGE_ID(h.gw_msgid)
             message_name = switcher.get(msgid.value, None)
             callid = -1
             msg = getattr(messages.body, message_name)(data[h.GetSize():h.GetSize() + h.length])
-            
-            if Util.std == 'on':
-                msg.PrintDump()
+            logger.debug('RECV < msg : [len:{0}, {1}] ({2}) : '.format(msg.GetSize(), msg.GetBytes(), self.name))
+            logger.info('RECV < ' + msg.StringDump())
 
-            if Util.hb == 'on':
+            if config.flag_hb == 'on':
                 if type(msg) is messages.body._GW_STATUS and msg.cmd == messages.body._GW_STATUS.KeepAliveRequest:
                     proc.send_gw_status(self, cmd=messages.body._GW_STATUS.KeepAliveResponse, state=messages.body._GW_STATUS.ConnectedWithPTALKServer)
 
-            if Util.rtp == 'on':
+            if config.flag_rtp == 'on':
                 if type(msg) in (messages.body._CALL_SETUP_REQ, messages.body._CALL_SETUP_RES):
                     callid = CallManager.makeCallId()
                     to_ip = socket.inet_ntoa(struct.pack("=I", msg.media_ip))
                     to_port = msg.media_port
                     CallManager.GenerateCall(to_ip, to_port, callid)
 
-            if Util.automode == 'on':
+            if config.flag_automode == 'on':
                 if type(msg) is messages.body._CALL_SETUP_REQ:
-                    if Util.rtp == 'off':
+                    if config.flag_rtp == 'off':
                         callid = CallManager.makeCallId()
                     proc.send_call_setup_res(self, calltype=msg.call_type, result=0, reserve2=0, s_call_id=callid, r_call_id=msg.s_call_id, media_ip='127.0.0.1', media_port=5)
                 elif type(msg) is messages.body._MEDIA_ON_REQ:

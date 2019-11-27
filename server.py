@@ -3,11 +3,11 @@ from pgw_protocol import Pgw2Protocol, sessions
 
 
 class Pgw2ServerFactory(protocol.ServerFactory):
-    def buildProtocol(self, addr):
 
-        self.protocol = Pgw2Protocol(sessions, 'SERVER')
-        sessions['server'] = self.protocol
-        return self.protocol
+    protocol = Pgw2Protocol(sessions, 'SERVER')
+    def buildProtocol(self, addr):
+        sessions['server'] = Pgw2ServerFactory.protocol
+        return Pgw2ServerFactory.protocol
 
     def ConnectionFailed(self, connect, reason):
         print('ConnectionFailed')

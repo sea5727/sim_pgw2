@@ -20,7 +20,8 @@ from call.CallManager import CallManager
 import socket
 import struct
 import sys
-from util import Util
+from config.configure import pgw2Config as config
+from logger import pgw2logger as logger
 
 __all__ = [
     'send_gw_status',
@@ -40,6 +41,12 @@ __all__ = [
 
 test_ip = '192.168.0.166'
 
+def send_message(session, body):
+    msg = _MESSAGE(body)
+    logger.debug('SEND > {0} : {1}, len:{2}'.format(msg.header.gw_msgid, msg.GetBytes(), msg.GetSize()))
+    logger.info('SEND > ' + msg.body.StringDump())
+    session.transport.write(msg.GetBytes())
+    
 
 def send_gw_status(session, body=None, cmd=1, state=1):
 
@@ -49,14 +56,7 @@ def send_gw_status(session, body=None, cmd=1, state=1):
         body.cmd = cmd
         body.state = state
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
     
 
 def send_call_setup_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, priority=1, reserve2=2, s_call_id=3, o_ssid=4, t_ssid=5, media_ip='127.0.0.1', media_port=7):
@@ -71,14 +71,7 @@ def send_call_setup_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, pri
         body.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
         body.media_port = media_port
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_call_setup_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, result=0, reserve2=1, s_call_id=2, r_call_id=3, media_ip='127.0.0.1', media_port=5):
@@ -92,14 +85,7 @@ def send_call_setup_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
         body.media_port = media_port
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_media_on_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, reserve1=0, reserve2=0, r_call_id=3, o_ssid=4):
@@ -111,14 +97,7 @@ def send_media_on_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, rese
         body.r_call_id = r_call_id
         body.o_ssid = o_ssid
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_media_off_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, reason=0, reserve2=0, r_call_id=3):
@@ -129,14 +108,7 @@ def send_media_off_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, rea
         body.reserve2 = reserve2
         body.r_call_id = r_call_id
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_media_on_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, o_priority=1, reserve2=0, r_call_id=3, o_ssid=4):
@@ -148,14 +120,7 @@ def send_media_on_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, o_pri
         body.r_call_id = r_call_id
         body.o_ssid = o_ssid
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_media_on_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, result=0, reserve2=0, r_call_id=3, o_ssid=4):
@@ -167,14 +132,7 @@ def send_media_on_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resul
         body.r_call_id = r_call_id
         body.o_ssid = o_ssid
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_media_off_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, reserve1=0, reserve2=0, r_call_id=3):
@@ -185,14 +143,7 @@ def send_media_off_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, rese
         body.reserve2 = reserve2
         body.r_call_id = r_call_id
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_media_off_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, result=0, reserve2=0, r_call_id=3):
@@ -203,14 +154,7 @@ def send_media_off_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resu
         body.reserve2 = reserve2
         body.r_call_id = r_call_id
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_call_leave_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, reserve1=0, reserve2=0, r_call_id=3):
@@ -221,14 +165,7 @@ def send_call_leave_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.reserve2 = reserve2
         body.r_call_id = r_call_id
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_call_leave_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, result=0, reserve2=0, r_call_id=3):
@@ -239,14 +176,7 @@ def send_call_leave_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.reserve2 = reserve2
         body.r_call_id = r_call_id
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_call_end_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resason=0, reserve2=0, r_call_id=3):
@@ -257,14 +187,7 @@ def send_call_end_noti(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, resa
         body.reserve2 = reserve2
         body.r_call_id = r_call_id
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 5, 6]):
@@ -276,14 +199,7 @@ def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 
         body.counter = counter
         body.bunch = bunch
 
-    msg = _MESSAGE(body)
-    if Util.std == 'on':
-        print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-        msg.body.PrintDump()
-        print('send(len:{0}) msg : {1}'.format(
-            msg.GetSize(),
-            msg.GetBytes()))
-    session.transport.write(msg.GetBytes())
+    send_message(session, body)
 
 
 # def send_call_audit_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, r_call_id=3):
@@ -293,12 +209,8 @@ def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 
 #         body.r_call_id = r_call_id
 
 #     msg = _MESSAGE(body)
-#     if Util.std == 'on':
-#         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-#         msg.body.PrintDump()
-#         print('send(len:{0}) msg : {1}'.format(
-#             msg.GetSize(),
-#             msg.GetBytes()))
+    # logger.info('SEND > {0} : {1}, len:{2}'.format(msg.header.gw_msgid, msg.GetBytes, msg.GetSize()))
+    # logger.debug('SEND > ' + msg.body.StringDump())
 #     session.transport.write(msg.GetBytes())
 
 
@@ -310,16 +222,12 @@ def send_bunch_info(session, body=None, cmd=1, reserve1=0, counter=3, bunch=[4, 
 #     res.expire_time = 3
 
 #     msg = _MESSAGE(res)
-#     if Util.std == 'on':
-#         print('### START ### ' + sys._getframe(0).f_code.co_name + '()')
-#         msg.body.PrintDump()
-#         print('send(len:{0}) msg : {1}'.format(
-#             msg.GetSize(),
-#             msg.GetBytes()))
+    # logger.info('SEND > {0} : {1}, len:{2}'.format(msg.header.gw_msgid, msg.GetBytes, msg.GetSize()))
+    # logger.debug('SEND > ' + msg.body.StringDump())
 #     session.transport.write(msg.GetBytes())
 
 
-def proc_test(session):
+def send_all_message(session):
     send_call_setup_req(session)
     send_call_setup_res(session)
     send_media_on_noti(session)
