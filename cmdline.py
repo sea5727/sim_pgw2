@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from twisted.internet import stdio, reactor
-from twisted.protocols import basic
-from pgw_protocol import sessions
+from twisted.internet import protocol
+from memory import sessions
 from messages import body
 from call.CallManager import CallManager
 import proc
@@ -10,18 +10,25 @@ import struct
 from config.configure import pgw2Config as config
 from logger import LogManager as logger
 
-class CommandProtocol(basic.LineReceiver):
+class CmdFactory(protocol.Factory):
+    def buildProtocol(self, addr):
+        return CommandProtocol()
+
+
+class CommandProtocol(protocol.Protocol):
     delimiter = b'\n'   # unix terminal style newlines. remove this line
     # for use with Telnet
-    def __init__(self):
-        super().__init__()
-        self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
+    # def __init__(self):
+    #     super().__init__()
+    #     self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
 
 
     def connectionMade(self):
-        self.sendLine(b"cmd console. Type 'help' for help.")
+        print('connectionMade!!')
+        # self.transport.write("Hello, world!")
+        # self.sendLine(b"cmd console. Type 'help' for help.")
 
-    def lineReceived(self, line):
+    def dataReceived(self, line):
         # Ignore blank lines
         if not line:
             return
@@ -38,12 +45,14 @@ class CommandProtocol(basic.LineReceiver):
             method = getattr(self, 'do_' + command)
         except AttributeError as e:
             print(e)
-            self.sendLine(b'Error: no such command.',)
+            print(b'Error: no such command.',)
+            # self.sendLine(b'Error: no such command.',)
         else:
             try:
                 method(*args)
             except Exception as e:
-                self.sendLine(b'Error: ' + str(e).encode("ascii"))
+                # self.sendLine(b'Error: ' + str(e).encode("ascii"))
+                print(b'Error: ' + str(e).encode("ascii"))
 
     def do_help(self, command=None):
         """help [command]: List commands, or show help on the given command"""
@@ -51,11 +60,13 @@ class CommandProtocol(basic.LineReceiver):
             commands = [cmd[3:].encode("ascii")
                         for cmd in dir(self)
                         if cmd.startswith('do_')]
-            self.sendLine(b"cmd list :  " + b" ".join(commands))
+            # self.sendLine(b"cmd list :  " + b" ".join(commands))
+            print(b"cmd list :  " + b" ".join(commands))
             self.print_main()
         else:
             doc = getattr(self, 'do_' + command).__doc__
-            self.sendLine(doc.encode("ascii"))
+            print(doc.encode("ascii"))
+            # self.sendLine(doc.encode("ascii"))
 
     def do_server(self, *args):
         """server: Proc like server"""
@@ -89,7 +100,8 @@ class CommandProtocol(basic.LineReceiver):
 
     def do_quit(self):
         """quit: Quit this session"""
-        self.sendLine(b'Goodbye.')
+        # self.sendLine(b'Goodbye.')
+        print(b'Goodbye.')
         self.transport.loseConnection()
 
     def do_set(self, *args):
@@ -213,8 +225,9 @@ class CommandProtocol(basic.LineReceiver):
     #     self.sendLine(msg.encode("ascii"))
 
     def connectionLost(self, reason):
-        # stop the reactor, only because this is meant to be run in Stdio.
-        reactor.stop()
+        print('connectionLost')
+        # reactor.stop()
+
 
 
 if __name__ == "__main__":

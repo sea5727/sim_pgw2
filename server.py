@@ -1,5 +1,6 @@
 from twisted.internet import reactor, protocol
-from pgw_protocol import Pgw2Protocol, sessions
+from pgw_protocol import Pgw2Protocol
+from memory import sessions
 
 
 class Pgw2ServerFactory(protocol.ServerFactory):

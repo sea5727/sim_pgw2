@@ -1,10 +1,13 @@
 from twisted.internet import reactor, protocol
-from pgw_protocol import Pgw2Protocol, sessions
+from pgw_protocol import Pgw2Protocol
+from memory import sessions
 from config.configure import pgw2Config as config
 from logger import pgw2logger as logger
+
 class Pgw2ClientFactory(protocol.ReconnectingClientFactory):
 
     protocol = Pgw2Protocol(sessions, 'CLIENT')
+    
     def buildProtocol(self, addr):
         self.resetDelay()
         sessions['client'] = Pgw2ClientFactory.protocol

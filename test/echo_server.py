@@ -1,5 +1,4 @@
 from twisted.internet import protocol, reactor
-from ... import cmdline
 
 class Echo(protocol.Protocol):
     def dataReceived(self, data):

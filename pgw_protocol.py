@@ -10,10 +10,6 @@ from call.CallManager import CallManager
 from config.configure import pgw2Config as config
 from logger import pgw2logger as logger
 
-sessions = {
-    'server': None,
-    'client': None,
-}
 
 switcher = {msgid.value: msgid.name for msgid in _MESSAGE_ID}
 
