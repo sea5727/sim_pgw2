@@ -144,39 +144,6 @@ class CommandProtocol(protocol.Protocol):
                 setattr(self.messages[message_name], data_name, calltype_dict[data_value])
             else:
                 setattr(self.messages[message_name], data_name, data_value)
-        
-        # print(self.messages[message_name].StringDump())
-        
-        # print('test')
-        # for cmd in args:
-        #     if '=' in cmd:
-        #         set_value.append(cmd)
-        #         cmd_list.remove(cmd)
-
-        # msgname = '_'.join(cmd_list).upper()
-        # if msgname not in self.messages:
-        #     if '_' + msgname in self.messages:
-        #         msgname = '_' + msgname
-
-        # for setter in set_value:
-        #     set = setter.split('=')
-        #     cur_value = getattr(self.messages[msgname], set[0])
-        #     if set[0] == 's_call_id' and type(self.messages[msgname]) is body._CALL_SETUP_REQ: 
-        #         self.transport.write(b'use set callid instead set message')
-        #         return
-        #     if set[0] == 'call_type':
-        #         self.transport.write(b'if you set call_type, this message is clear')
-        #         self.messages[msgname] = getattr(body, msgname)().Init(int(set[1]))
-        #         self.transport.write(self.messages[msgname].StringDump().encode())
-        #         return
-        #     if set[0] == 'media_ip':
-        #         setattr(self.messages[msgname], set[0], struct.unpack('=I', socket.inet_aton(set[1]))[0] )
-        #         self.transport.write(self.messages[msgname].StringDump().encode())
-        #         return
-        #     # print('cur value:{0}, cur type:{1}, new value:{2}, new type:{3}'.format(cur_value, type(cur_value), set[1], type(set[1])))
-        #     setattr(self.messages[msgname], set[0], int(set[1]))
-
-        # self.transport.write(self.messages[msgname].StrubgDump().encode())
 
     def set_hb(self, *args):
         on_off = args[0]
