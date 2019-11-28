@@ -62,6 +62,7 @@ class _GW_STATUS(ISerializable):
     def set_msg(self, datas):
         self.cmd = datas[0]
         self.state = datas[1]
+        self.message_names = ['cmd', 'state']
 
     def StringDump(self):
         dump = ''
@@ -145,6 +146,15 @@ class _CALL_SETUP_REQ(ISerializable):
             self.t_ssid = datas[5]
             self.media_ip = datas[6]
             self.media_port = datas[7]
+            self.message_names = [
+                'call_type',
+                'priority',
+                's_call_id',
+                'o_ssid',
+                't_ssid',
+                'media_ip',
+                'media_port'
+            ]
 
         def StringDump(self):
             dump = ''
@@ -200,6 +210,15 @@ class _CALL_SETUP_REQ(ISerializable):
             self.bunch_group = datas[5]
             self.media_ip = datas[6]
             self.media_port = datas[7]
+            self.message_names = [
+                'call_type',
+                'priority',
+                's_call_id',
+                'o_ssid',
+                'bunch_group',
+                'media_ip',
+                'media_port'
+            ]
 
         def StringDump(self):
             dump = ''
@@ -255,6 +274,15 @@ class _CALL_SETUP_REQ(ISerializable):
             self.bunch_group = datas[5]
             self.media_ip = datas[6]
             self.media_port = datas[7]
+            self.message_names = [
+                'call_type',
+                'priority',
+                's_call_id',
+                'o_ssid',
+                'bunch_group',
+                'media_ip',
+                'media_port'
+            ]
 
         def StringDump(self):
             dump = ''
@@ -322,6 +350,17 @@ class _CALL_SETUP_REQ(ISerializable):
             self.media_port = datas[6]
             self.mem_cnt = datas[7]
             self.mem_list = datas[8]
+            self.message_names = [
+                'call_type',
+                'priority',
+                's_call_id',
+                'o_ssid',
+                'bunch_group',
+                'media_ip',
+                'media_port',
+                'mem_cnt',
+                'mem_list',
+            ]
 
         def StringDump(self):
             dump = ''
@@ -336,6 +375,7 @@ class _CALL_SETUP_REQ(ISerializable):
             dump += 'mem_cnt : [{0}]'.format(self.mem_cnt)
             dump += 'mem_list : [{0}]'.format(self.mem_list)
             return dump
+
         def PrintDump(self):
             print(self.StringDump())
 
@@ -381,6 +421,12 @@ class _CALL_SETUP_REQ(ISerializable):
             self.s_call_id = datas[3]
             self.o_ssid = datas[4]
             self.t_ssid = datas[5]
+            self.message_names = [
+                'call_type',
+                's_call_id',
+                'o_ssid',
+                't_ssid',
+            ]
 
         def StringDump(self):
             dump = ''
@@ -392,6 +438,7 @@ class _CALL_SETUP_REQ(ISerializable):
             dump += 'o_ssid : [{0}]'.format(self.o_ssid)
             dump += 't_ssid : [{0}]'.format(self.t_ssid)
             return dump
+
         def PrintDump(self):
             print(self.StringDump())
 
@@ -432,6 +479,15 @@ class _CALL_SETUP_REQ(ISerializable):
             self.media_ip = datas[6]
             self.media_port = datas[7]
             self.rpc_para = datas[8]
+            self.message_names = [
+                'call_type',
+                's_call_id',
+                'o_ssid',
+                't_ssid',
+                'media_ip',
+                'media_port',
+                'rpc_para',
+            ]
 
         def StringDump(self):
             dump = ''
@@ -530,6 +586,14 @@ class _CALL_SETUP_RES(ISerializable):
             self.r_call_id = datas[4]
             self.media_ip = datas[5]
             self.media_port = datas[6]
+            self.message_names = [
+                'call_type'
+                'result',
+                's_call_id',
+                'r_call_id',
+                'media_ip',
+                'media_port',
+            ]
 
         def StringDump(self):
             dump = ''
@@ -608,6 +672,15 @@ class _CALL_SETUP_RES(ISerializable):
             self.media_ip = datas[5]
             self.media_port = datas[6]
             self.v_rate = datas[7]
+            self.message_names = [
+                'call_type'
+                'result',
+                's_call_id',
+                'r_call_id',
+                'media_ip',
+                'media_port',
+                'v_rate',
+            ]
 
         def StringDump(self):
             dump = ''
@@ -672,6 +745,12 @@ class _MEDIA_ON_REQ(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.o_ssid = datas[4]
+        self.message_names = [
+            'call_type'
+            'o_priority',
+            'r_call_id',
+            'o_ssid',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -730,6 +809,12 @@ class _MEDIA_ON_RES(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.o_ssid = datas[4]
+        self.message_names = [
+            'call_type'
+            'result',
+            'r_call_id',
+            'o_ssid',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -787,6 +872,10 @@ class _MEDIA_OFF_REQ(ISerializable):
         self.reserve1 = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
+        self.message_names = [
+            'call_type'
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -842,6 +931,11 @@ class _MEDIA_OFF_RES(ISerializable):
         self.result = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
+        self.message_names = [
+            'call_type'
+            'reseult',
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -851,6 +945,7 @@ class _MEDIA_OFF_RES(ISerializable):
         dump += 'reserve2 : [{0}]'.format(self.reserve2)
         dump += 'r_call_id : [{0}]'.format(self.r_call_id)
         return dump
+
     def PrintDump(self):
         print(self.StringDump())
 
@@ -897,6 +992,12 @@ class _MEDIA_ON_NOTI(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.o_ssid = datas[4]
+        self.message_names = [
+            'call_type'
+            'reseult',
+            'r_call_id',
+            'o_ssid',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -954,6 +1055,11 @@ class _MEDIA_OFF_NOTI(ISerializable):
         self.reason = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
+        self.message_names = [
+            'call_type'
+            'reason',
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -1009,6 +1115,10 @@ class _CALL_LEAVE_REQ(ISerializable):
         self.reserve1 = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
+        self.message_names = [
+            'call_type'
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -1064,6 +1174,11 @@ class _CALL_LEAVE_RES(ISerializable):
         self.result = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
+        self.message_names = [
+            'call_type'
+            'reseult'
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -1119,6 +1234,11 @@ class _CALL_END_NOTI(ISerializable):
         self.reason = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
+        self.message_names = [
+            'call_type'
+            'reason',
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -1185,6 +1305,11 @@ class _BUNCH_INFO(ISerializable):
         self.reserve1 = datas[1]
         self.counter = datas[2]
         self.bunch = datas[3]
+        self.message_names = [
+            'cmd'
+            'counter',
+            'bunch',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -1243,6 +1368,10 @@ class _CALL_AUDIT_REQ(ISerializable):
     def set_msg(self, datas):
         self.call_type = datas[0]
         self.r_call_id = datas[1]
+        self.message_names = [
+            'call_type'
+            'r_call_id',
+        ]
 
     def StringDump(self):
         dump = ''
@@ -1294,6 +1423,12 @@ class _CALL_AUDIT_RES(ISerializable):
         self.r_call_id = datas[1]
         self.result = datas[2]
         self.expire_time = datas[3]
+        self.message_names = [
+            'call_type'
+            'r_call_id',
+            'result',
+            'expire_time',
+        ]
 
     def StringDump(self):
         dump = ''

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 from twisted.internet import stdio, reactor
 from twisted.internet import protocol
-from memory import sessions
+from pgw2memory import sessions
 from messages import body
 from call.CallManager import CallManager
 import proc
 import socket
 import struct
 from config.configure import pgw2Config as config
-from logger import LogManager as logger
+from logger import LogManager
+from logger import pgw2logger as logger
 
-class CmdFactory(protocol.Factory):
+class CmdServerFactory(protocol.Factory):
     def buildProtocol(self, addr):
         return CommandProtocol()
 
@@ -18,13 +19,13 @@ class CmdFactory(protocol.Factory):
 class CommandProtocol(protocol.Protocol):
     delimiter = b'\n'   # unix terminal style newlines. remove this line
     # for use with Telnet
-    # def __init__(self):
-    #     super().__init__()
-    #     self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
+    def __init__(self):
+        super().__init__()
+        self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
 
 
     def connectionMade(self):
-        print('connectionMade!!')
+        logger.debug('cmd line protocol connection made!!')
         # self.transport.write("Hello, world!")
         # self.sendLine(b"cmd console. Type 'help' for help.")
 
@@ -44,15 +45,16 @@ class CommandProtocol(protocol.Protocol):
         try:
             method = getattr(self, 'do_' + command)
         except AttributeError as e:
-            print(e)
-            print(b'Error: no such command.',)
+            for arg in e.args:
+                self.transport.write(arg.encode())
+            self.transport.write(b'Error: no such command.',)
             # self.sendLine(b'Error: no such command.',)
         else:
             try:
                 method(*args)
             except Exception as e:
                 # self.sendLine(b'Error: ' + str(e).encode("ascii"))
-                print(b'Error: ' + str(e).encode("ascii"))
+                self.transport.write(b'Error: ' + str(e).encode("ascii"))
 
     def do_help(self, command=None):
         """help [command]: List commands, or show help on the given command"""
@@ -61,11 +63,11 @@ class CommandProtocol(protocol.Protocol):
                         for cmd in dir(self)
                         if cmd.startswith('do_')]
             # self.sendLine(b"cmd list :  " + b" ".join(commands))
-            print(b"cmd list :  " + b" ".join(commands))
+            self.transport.write(b"cmd list :  " + b" ".join(commands) + b'\n')
             self.print_main()
         else:
             doc = getattr(self, 'do_' + command).__doc__
-            print(doc.encode("ascii"))
+            self.transport.write(doc.encode("ascii"))
             # self.sendLine(doc.encode("ascii"))
 
     def do_server(self, *args):
@@ -75,8 +77,13 @@ class CommandProtocol(protocol.Protocol):
         if method == proc.send_all_message:
             proc.send_all_message(session=sessions['server'])
             return
-        classname = '_' + '_'.join(args[1:]).upper()        
-        method(session=sessions['server'], body=self.messages[classname])
+        if len(args) == 1:
+            classname = args[0].replace('send', '').upper()
+            method(session=sessions['server'], body=self.messages[classname])
+        else:
+            classname = '_' + '_'.join(args[1:]).upper()
+            method(session=sessions['server'], body=self.messages[classname])
+        
 
     def do_client(self, *args):
         """client: Proc like client"""
@@ -85,23 +92,17 @@ class CommandProtocol(protocol.Protocol):
         if method == proc.send_all_message:
             proc.send_all_message(session=sessions['client'])
             return
-        classname = '_' + '_'.join(args[1:]).upper()
-        method(session=sessions['client'], body=self.messages[classname])
-
-    def send_msg(self, sock, msg):
-        if sock is None:
-            print('no connection sock:{0}, msg:{1}'.format(
-                sock, msg
-            ))
+        if len(args) == 1:
+            classname = args[0].replace('send', '').upper()
+            method(session=sessions['server'], body=self.messages[classname])
         else:
-            print('sock:{0}, msg:{1}'.format(
-                sock, msg
-            ))
+            classname = '_' + '_'.join(args[1:]).upper()
+            method(session=sessions['server'], body=self.messages[classname])
 
     def do_quit(self):
         """quit: Quit this session"""
         # self.sendLine(b'Goodbye.')
-        print(b'Goodbye.')
+        self.transport.write(b'Goodbye.')
         self.transport.loseConnection()
 
     def do_set(self, *args):
@@ -117,18 +118,18 @@ class CommandProtocol(protocol.Protocol):
         if args[0] == 'message':
             if args[1] == 'all':
                 for msg_key in self.messages:
-                    self.messages[msg_key].PrintDump()
+                    self.transport.write(self.messages[msg_key].StringDump().encode())
                 return
             msgname = '_'.join(args[1:]).upper()
             if msgname not in self.messages:
                 if '_' + msgname in self.messages:
                     msgname = '_' + msgname
-            self.messages[msgname].PrintDump()
+            self.transport.write(self.messages[msgname].StringDump().encode())
 
 
     def do_reset(self, *args):
         """show: print infomation"""
-        print('todo')
+        self.transport.write(b'todo')
 
     def set_message(self, *args):
         set_value = []
@@ -148,21 +149,21 @@ class CommandProtocol(protocol.Protocol):
             set = setter.split('=')
             cur_value = getattr(self.messages[msgname], set[0])
             if set[0] == 's_call_id' and type(self.messages[msgname]) is body._CALL_SETUP_REQ: 
-                print('use set callid instead set message')
+                self.transport.write(b'use set callid instead set message')
                 return
             if set[0] == 'call_type':
-                print('if you set call_type, this message is clear')
+                self.transport.write(b'if you set call_type, this message is clear')
                 self.messages[msgname] = getattr(body, msgname)().Init(int(set[1]))
-                self.messages[msgname].PrintDump()
+                self.transport.write(self.messages[msgname].StringDump().encode())
                 return
             if set[0] == 'media_ip':
                 setattr(self.messages[msgname], set[0], struct.unpack('=I', socket.inet_aton(set[1]))[0] )
-                self.messages[msgname].PrintDump()
+                self.transport.write(self.messages[msgname].StringDump().encode())
                 return
             # print('cur value:{0}, cur type:{1}, new value:{2}, new type:{3}'.format(cur_value, type(cur_value), set[1], type(set[1])))
             setattr(self.messages[msgname], set[0], int(set[1]))
 
-        self.messages[msgname].PrintDump()
+        self.transport.write(self.messages[msgname].StrubgDump().encode())
 
     def set_hb(self, *args):
         on_off = args[0]
@@ -182,7 +183,7 @@ class CommandProtocol(protocol.Protocol):
     def set_auto(self, *args):
         on_off = args[0]
         if on_off == 'on' or on_off == 'off':
-            print('todo set auto')
+            self.transport.write(b'todo set auto')
 
     def set_loglevel(self, *args):
         level = args[0]
@@ -191,38 +192,23 @@ class CommandProtocol(protocol.Protocol):
             return
 
         config.manual_log_level = level
-        logger.set_loglevel(level)
+        LogManager.set_loglevel(level)
 
     def print_main(self):
-        print(" ")
-        print("     help")
-        print("     quit")
-        print("     show message [msgname]")
-        print("     show call [status]  ")
-        print("     reset flag          ")
-        print("     set auto [on/off] [{0}]".format(config.flag_automode))
-        print("     set hb [on/off] [{0}]".format(config.flag_hb))
-        # print("     set rtp [on/off] [{0}]".format(config.flag_rtp))
-        print("     set callid [number] [{0}]".format(CallManager.CallId))
-        print("     client [function_name]")
-        print("     server [function_name]")
-        print(" ")
-
-    # def do_check(self, url):
-    #     """check <url>: Attempt to download the given web page"""
-    #     url = url.encode("ascii")
-    #     client.Agent(reactor).request(b'GET', url).addCallback(
-    #         client.readBody).addCallback(
-    #         self.__checkSuccess).addErrback(
-    #         self.__checkFailure)
-
-    # def __checkSuccess(self, pageData):
-    #     msg = "Success: got {} bytes.".format(len(pageData))
-    #     self.sendLine(msg.encode("ascii"))
-
-    # def __checkFailure(self, failure):
-    #     msg = "Failure: " + failure.getErrorMessage()
-    #     self.sendLine(msg.encode("ascii"))
+        newline = '\n'
+        msg = ''
+        msg += '     help' + newline
+        msg += '     quit' + newline
+        msg += '     show message [msgname]' + newline
+        msg += '     show call [status]' + newline
+        msg += '     reset flag' + newline
+        msg += '     set auto [on/off] [{0}]'.format(config.flag_automode) + newline
+        msg += '     set hb [on/off] [{0}]'.format(config.flag_hb) + newline
+        msg += '     set callid [number] [{0}]'.format(CallManager.CallId) + newline
+        msg += '     client [function_name]' + newline
+        msg += '     server [function_name]' + newline
+        msg += ' ' + newline
+        self.transport.write(msg.encode())
 
     def connectionLost(self, reason):
         print('connectionLost')

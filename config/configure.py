@@ -20,10 +20,11 @@ class Config:
         self.manual_log_level = 'INFO'
         self.manual_log_stderr = 'on'
         self.manual_background = 'off'
-        self.manual_connect_ip = '0.0.0.0'
+        self.manual_connect_ip = '127.0.0.1'
         self.manual_connect_port = '54321'
         self.manual_listen_ip = '0.0.0.0'
         self.manual_listen_port = '12345'
+        self.manual_listen_ctl = '5959'
         self.manual_reconnect_interval = 1
         self.manual_flag_automode = 'off'
         self.manual_flag_hb = 'off'
@@ -57,7 +58,7 @@ class Config:
     def background(self):
         if hasattr(self, 'manual_background') and self.manual_background is not None:
             return self.manual_background
-        return self.config[self.section]['background'] if self.config.has_option(self.section, 'background') else 'on'
+        return self.config[self.section]['background'] if self.config.has_option(self.section, 'background') else 'off'
 
     @property
     def connect_ip(self):
@@ -82,6 +83,12 @@ class Config:
         if hasattr(self, 'manual_listen_port') and self.manual_listen_port is not None:
             return int(self.manual_listen_port)
         return int(self.config[self.section]['listen-port']) if self.config.has_option(self.section, 'listen-port') else 54321
+
+    @property
+    def listen_ctl(self):
+        if hasattr(self, 'manual_listen_ctl') and self.manual_listen_ctl is not None:
+            return int(self.manual_listen_ctl)
+        return int(self.config[self.section]['listen-ctl']) if self.config.has_option(self.section, 'listen-ctl') else 5959
 
     @property
     def reconnect_interval(self):

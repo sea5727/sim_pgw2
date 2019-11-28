@@ -28,7 +28,8 @@ class LogManager:
         if any([handler for handler in LogManager.logger.handlers if type(handler) == handlers.TimedRotatingFileHandler]):
             return
         logHandler = handlers.TimedRotatingFileHandler(log_path, when='MIDNIGHT', interval=1, backupCount=10)
-        logformatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # datefmt="%Y-%m-%d %H:%M:%S"
+        logformatter = logging.Formatter('[%(asctime)s][%(levelname)s] %(name)s - %(message)s, test:%(msecs)d, %(relativeCreated)d')
         logHandler.setFormatter(logformatter)
         LogManager.logger.addHandler(logHandler)
 
@@ -63,3 +64,11 @@ class LogManager:
 
 
 pgw2logger = LogManager.getInstance()
+# log를 찍으려면 pgw2logger 를 사용,
+# loglevel 등 설정을 변경하려면 LogManager 를 받아 사용.
+# ex) 로거 예
+# from logger import pgw2logger as logger
+# logger.info('test')
+# ex) 로그레벨 세팅 예
+# from logger import LogManager as logManager
+# logManager.set_loglevel('INFO')

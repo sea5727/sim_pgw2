@@ -1,6 +1,6 @@
 from twisted.internet import reactor, protocol
 from pgw_protocol import Pgw2Protocol
-from memory import sessions
+from pgw2memory import sessions
 from config.configure import pgw2Config as config
 from logger import pgw2logger as logger
 

@@ -15,8 +15,8 @@ class _MESSAGE_ID(enum.Enum):
     _CALL_LEAVE_RES = 10
     _CALL_END_NOTI = 11
     _BUNCH_INFO = 12
-    _CALL_AUDIT_REQ = 13
-    _CALL_AUDIT_RES = 14
+    # _CALL_AUDIT_REQ = 13
+    # _CALL_AUDIT_RES = 14
 
 
 class _CALL_TYPE(enum.Enum):

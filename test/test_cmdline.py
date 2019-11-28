@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from twisted.internet import stdio, reactor
 from twisted.internet.protocol import Protocol
-from memory import sessions
+from pgw2memory import sessions
 from messages import body
 from call.CallManager import CallManager
 import proc
