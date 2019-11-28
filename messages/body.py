@@ -2,6 +2,7 @@ from messages.ISerializable import ISerializable
 import struct
 import socket
 from define.pgw_define import _CALL_TYPE
+from pgw2memory import calltype_switcher
 
 
 __all__ = [
@@ -27,9 +28,6 @@ __all__ = [
 # UDG : BBHIIIHH?s
 # ALERT : BBHIII
 # RPC : BBHIIIIHH
-
-
-switcher = {calltype.value: calltype.name for calltype in _CALL_TYPE}   # make dict ex) key:1, value:_CT_PRIVATE
 
 
 class _GW_STATUS(ISerializable):
@@ -66,9 +64,9 @@ class _GW_STATUS(ISerializable):
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'cmd : [{0}]'.format(self.cmd)
-        dump += 'state : [{0}]'.format(self.state)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'cmd : [{0}] '.format(self.cmd)
+        dump += 'state : [{0}] '.format(self.state)
         return dump
         
     def PrintDump(self):
@@ -95,7 +93,7 @@ class _CALL_SETUP_REQ(ISerializable):
             return
 
         calltype = _CALL_TYPE(buf[0:1][0])  # first bit is CallType
-        classname = switcher.get(calltype.value, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(calltype.value, lambda: "Invalid CallType")
         getattr(self, classname).init(self, buf)
         getattr(self, classname).set_msg(self, self.datas)
 
@@ -104,25 +102,25 @@ class _CALL_SETUP_REQ(ISerializable):
             calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
-        classname = switcher.get(calltype, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(calltype, lambda: "Invalid CallType")
         getattr(self, classname).init(self)
         getattr(self, classname).set_msg(self, self.datas)
         return self
 
     def StringDump(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).StringDump(self)
 
     def PrintDump(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).PrintDump(self)
 
     def GetBytes(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).GetBytes(self)
 
     def GetSize(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).GetSize(self)
 
     class _CT_PRIVATE(ISerializable):
@@ -158,15 +156,15 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'priority : [{0}]'.format(self.priority)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]'.format(self.o_ssid)
-            dump += 't_ssid : [{0}]'.format(self.t_ssid)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
+            dump += '[{0}]  '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}]  '.format(self.call_type)
+            dump += 'priority : [{0}]  '.format(self.priority)
+            dump += 'reserve2 : [{0}]  '.format(self.reserve2)
+            dump += 's_call_id : [{0}]  '.format(self.s_call_id)
+            dump += 'o_ssid : [{0}]  '.format(self.o_ssid)
+            dump += 't_ssid : [{0}]  '.format(self.t_ssid)
+            dump += 'media_ip : [{0}]  '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}]  '.format(self.media_port)
             return dump
         
         def PrintDump(self):
@@ -222,15 +220,15 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'priority : [{0}]'.format(self.priority)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]'.format(self.o_ssid)
-            dump += 'bunch_group : [{0}]'.format(self.bunch_group)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
+            dump += '[{0}]  '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}]  '.format(self.call_type)
+            dump += 'priority : [{0}]  '.format(self.priority)
+            dump += 'reserve2 : [{0}]  '.format(self.reserve2)
+            dump += 's_call_id : [{0}]  '.format(self.s_call_id)
+            dump += 'o_ssid : [{0}]  '.format(self.o_ssid)
+            dump += 'bunch_group : [{0}]  '.format(self.bunch_group)
+            dump += 'media_ip : [{0}]  '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}]  '.format(self.media_port)
             return dump
             
         def PrintDump(self):
@@ -286,15 +284,15 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'priority : [{0}]'.format(self.priority)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]'.format(self.o_ssid)
-            dump += 'bunch_group : [{0}]'.format(self.bunch_group)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
+            dump += '[{0}] '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}] '.format(self.call_type)
+            dump += 'priority : [{0}] '.format(self.priority)
+            dump += 'reserve2 : [{0}] '.format(self.reserve2)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
+            dump += 'o_ssid : [{0}] '.format(self.o_ssid)
+            dump += 'bunch_group : [{0}] '.format(self.bunch_group)
+            dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}] '.format(self.media_port)
             return dump
 
         def PrintDump(self):
@@ -364,16 +362,16 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'priority : [{0}]'.format(self.priority)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]'.format(self.o_ssid)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
-            dump += 'mem_cnt : [{0}]'.format(self.mem_cnt)
-            dump += 'mem_list : [{0}]'.format(self.mem_list)
+            dump += '[{0}] '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}] '.format(self.call_type)
+            dump += 'priority : [{0}] '.format(self.priority)
+            dump += 'reserve2 : [{0}] '.format(self.reserve2)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
+            dump += 'o_ssid : [{0}] '.format(self.o_ssid)
+            dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}] '.format(self.media_port)
+            dump += 'mem_cnt : [{0}] '.format(self.mem_cnt)
+            dump += 'mem_list : [{0}] '.format(self.mem_list)
             return dump
 
         def PrintDump(self):
@@ -430,13 +428,13 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'reserve1 : [{0}]'.format(self.reserve1)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]'.format(self.o_ssid)
-            dump += 't_ssid : [{0}]'.format(self.t_ssid)
+            dump += '[{0}] '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}] '.format(self.call_type)
+            dump += 'reserve1 : [{0}] '.format(self.reserve1)
+            dump += 'reserve2 : [{0}] '.format(self.reserve2)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
+            dump += 'o_ssid : [{0}] '.format(self.o_ssid)
+            dump += 't_ssid : [{0}] '.format(self.t_ssid)
             return dump
 
         def PrintDump(self):
@@ -491,16 +489,16 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'reserve1 : [{0}]'.format(self.reserve1)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]'.format(self.o_ssid)
-            dump += 't_ssid : [{0}]'.format(self.t_ssid)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
-            dump += 'rpc_para : [{0}]'.format(self.rpc_para)
+            dump += '[{0}] '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}] '.format(self.call_type)
+            dump += 'reserve1 : [{0}] '.format(self.reserve1)
+            dump += 'reserve2 : [{0}] '.format(self.reserve2)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
+            dump += 'o_ssid : [{0}] '.format(self.o_ssid)
+            dump += 't_ssid : [{0}] '.format(self.t_ssid)
+            dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}] '.format(self.media_port)
+            dump += 'rpc_para : [{0}] '.format(self.rpc_para)
             return dump
 
         def PrintDump(self):
@@ -534,7 +532,7 @@ class _CALL_SETUP_RES(ISerializable):
             return
 
         calltype = _CALL_TYPE(buf[0:1][0])  # first bit is CallType
-        classname = switcher.get(calltype.value, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(calltype.value, lambda: "Invalid CallType")
         getattr(self, classname).init(self, buf)
         getattr(self, classname).set_msg(self, self.datas)
 
@@ -543,7 +541,7 @@ class _CALL_SETUP_RES(ISerializable):
             calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
-        classname = switcher.get(calltype, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(calltype, lambda: "Invalid CallType")
         getattr(self, classname).init(self)
         getattr(self, classname).set_msg(self, self.datas)
         # self._CT_COMMON.init(self)
@@ -551,19 +549,19 @@ class _CALL_SETUP_RES(ISerializable):
         return self
 
     def StringDump(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).StringDump(self)
 
     def PrintDump(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         getattr(self, classname).PrintDump(self)
 
     def GetBytes(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).GetBytes(self)
 
     def GetSize(self):
-        classname = switcher.get(self.call_type, lambda: "Invalid CallType")
+        classname = calltype_switcher.get(self.call_type, lambda: "Invalid CallType")
         return getattr(self, classname).GetSize(self)
 
     class _CT_COMMON(ISerializable):
@@ -587,7 +585,7 @@ class _CALL_SETUP_RES(ISerializable):
             self.media_ip = datas[5]
             self.media_port = datas[6]
             self.message_names = [
-                'call_type'
+                'call_type',
                 'result',
                 's_call_id',
                 'r_call_id',
@@ -597,14 +595,14 @@ class _CALL_SETUP_RES(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'result : [{0}]'.format(self.result)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'r_call_id : [{0}]'.format(self.r_call_id)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
+            dump += '[{0}] '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}] '.format(self.call_type)
+            dump += 'result : [{0}] '.format(self.result)
+            dump += 'reserve2 : [{0}] '.format(self.reserve2)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
+            dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+            dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}] '.format(self.media_port)
             return dump
 
         def PrintDump(self):
@@ -673,7 +671,7 @@ class _CALL_SETUP_RES(ISerializable):
             self.media_port = datas[6]
             self.v_rate = datas[7]
             self.message_names = [
-                'call_type'
+                'call_type',
                 'result',
                 's_call_id',
                 'r_call_id',
@@ -684,15 +682,15 @@ class _CALL_SETUP_RES(ISerializable):
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}]'.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]'.format(self.call_type)
-            dump += 'result : [{0}]'.format(self.result)
-            dump += 'reserve2 : [{0}]'.format(self.reserve2)
-            dump += 's_call_id : [{0}]'.format(self.s_call_id)
-            dump += 'r_call_id : [{0}]'.format(self.r_call_id)
-            dump += 'media_ip : [{0}]'.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]'.format(self.media_port)
-            dump += 'v_rate : [{0}]'.format(self.v_rate)
+            dump += '[{0}] '.format(self.__class__.__name__)
+            dump += 'call_type : [{0}] '.format(self.call_type)
+            dump += 'result : [{0}] '.format(self.result)
+            dump += 'reserve2 : [{0}] '.format(self.reserve2)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
+            dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+            dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
+            dump += 'media_port : [{0}] '.format(self.media_port)
+            dump += 'v_rate : [{0}] '.format(self.v_rate)
             return dump
 
         def PrintDump(self):
@@ -746,7 +744,7 @@ class _MEDIA_ON_REQ(ISerializable):
         self.r_call_id = datas[3]
         self.o_ssid = datas[4]
         self.message_names = [
-            'call_type'
+            'call_type',
             'o_priority',
             'r_call_id',
             'o_ssid',
@@ -754,12 +752,12 @@ class _MEDIA_ON_REQ(ISerializable):
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'o_priority : [{0}]'.format(self.o_priority)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
-        dump += 'o_ssid : [{0}]'.format(self.o_ssid)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'o_priority : [{0}] '.format(self.o_priority)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+        dump += 'o_ssid : [{0}] '.format(self.o_ssid)
         return dump
 
     def PrintDump(self):
@@ -810,7 +808,7 @@ class _MEDIA_ON_RES(ISerializable):
         self.r_call_id = datas[3]
         self.o_ssid = datas[4]
         self.message_names = [
-            'call_type'
+            'call_type',
             'result',
             'r_call_id',
             'o_ssid',
@@ -818,12 +816,12 @@ class _MEDIA_ON_RES(ISerializable):
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'result : [{0}]'.format(self.result)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
-        dump += 'o_ssid : [{0}]'.format(self.o_ssid)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'result : [{0}] '.format(self.result)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+        dump += 'o_ssid : [{0}] '.format(self.o_ssid)
         return dump
 
     def PrintDump(self):
@@ -873,17 +871,17 @@ class _MEDIA_OFF_REQ(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.message_names = [
-            'call_type'
+            'call_type',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'reserve1 : [{0}]'.format(self.reserve1)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'reserve1 : [{0}] '.format(self.reserve1)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
         
     def PrintDump(self):
@@ -932,18 +930,18 @@ class _MEDIA_OFF_RES(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.message_names = [
-            'call_type'
+            'call_type',
             'reseult',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'result : [{0}]'.format(self.result)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'result : [{0}] '.format(self.result)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
 
     def PrintDump(self):
@@ -993,7 +991,7 @@ class _MEDIA_ON_NOTI(ISerializable):
         self.r_call_id = datas[3]
         self.o_ssid = datas[4]
         self.message_names = [
-            'call_type'
+            'call_type',
             'reseult',
             'r_call_id',
             'o_ssid',
@@ -1001,12 +999,12 @@ class _MEDIA_ON_NOTI(ISerializable):
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'reserve1 : [{0}]'.format(self.reserve1)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
-        dump += 'o_ssid : [{0}]'.format(self.o_ssid)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'reserve1 : [{0}] '.format(self.reserve1)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+        dump += 'o_ssid : [{0}] '.format(self.o_ssid)
         return dump
 
     def PrintDump(self):
@@ -1056,18 +1054,18 @@ class _MEDIA_OFF_NOTI(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.message_names = [
-            'call_type'
+            'call_type',
             'reason',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'reason : [{0}]'.format(self.reason)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'reason : [{0}] '.format(self.reason)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
 
     def PrintDump(self):
@@ -1116,17 +1114,17 @@ class _CALL_LEAVE_REQ(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.message_names = [
-            'call_type'
+            'call_type',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'reserve1 : [{0}]'.format(self.reserve1)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'reserve1 : [{0}] '.format(self.reserve1)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
 
     def PrintDump(self):
@@ -1175,18 +1173,18 @@ class _CALL_LEAVE_RES(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.message_names = [
-            'call_type'
-            'reseult'
+            'call_type',
+            'reseult',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'result : [{0}]'.format(self.result)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'result : [{0}] '.format(self.result)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
 
     def PrintDump(self):
@@ -1235,18 +1233,18 @@ class _CALL_END_NOTI(ISerializable):
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
         self.message_names = [
-            'call_type'
+            'call_type',
             'reason',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'reason : [{0}]'.format(self.reason)
-        dump += 'reserve2 : [{0}]'.format(self.reserve2)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'reason : [{0}] '.format(self.reason)
+        dump += 'reserve2 : [{0}] '.format(self.reserve2)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
 
     def PrintDump(self):
@@ -1313,11 +1311,11 @@ class _BUNCH_INFO(ISerializable):
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'cmd : [{0}]'.format(self.cmd)
-        dump += 'reserve1 : [{0}]'.format(self.reserve1)
-        dump += 'counter : [{0}]'.format(self.counter)
-        dump += 'bunch : [{0}]'.format(self.bunch)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'cmd : [{0}] '.format(self.cmd)
+        dump += 'reserve1 : [{0}] '.format(self.reserve1)
+        dump += 'counter : [{0}] '.format(self.counter)
+        dump += 'bunch : [{0}] '.format(self.bunch)
         return dump
 
     def PrintDump(self):
@@ -1369,15 +1367,15 @@ class _CALL_AUDIT_REQ(ISerializable):
         self.call_type = datas[0]
         self.r_call_id = datas[1]
         self.message_names = [
-            'call_type'
+            'call_type',
             'r_call_id',
         ]
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
 
     def PrintDump(self):
@@ -1424,7 +1422,7 @@ class _CALL_AUDIT_RES(ISerializable):
         self.result = datas[2]
         self.expire_time = datas[3]
         self.message_names = [
-            'call_type'
+            'call_type',
             'r_call_id',
             'result',
             'expire_time',
@@ -1432,11 +1430,11 @@ class _CALL_AUDIT_RES(ISerializable):
 
     def StringDump(self):
         dump = ''
-        dump += '[{0}]'.format(self.__class__.__name__)
-        dump += 'call_type : [{0}]'.format(self.call_type)
-        dump += 'r_call_id : [{0}]'.format(self.r_call_id)
-        dump += 'result : [{0}]'.format(self.result)
-        dump += 'expire_time : [{0}]'.format(self.expire_time)
+        dump += '[{0}] '.format(self.__class__.__name__)
+        dump += 'call_type : [{0}] '.format(self.call_type)
+        dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+        dump += 'result : [{0}] '.format(self.result)
+        dump += 'expire_time : [{0}] '.format(self.expire_time)
         return dump
 
     def PrintDump(self):

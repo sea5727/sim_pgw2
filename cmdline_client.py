@@ -25,7 +25,6 @@ class CmdClientFactory(protocol.ReconnectingClientFactory):
         super().clientConnectionFailed(connector, reason)
 
     def clientConnectionLost(self, connector, unused_reason):
-        print('clientConnectionLost')
         self.maxDelay = 0.5
         super().clientConnectionLost(connector, unused_reason)
 
@@ -87,6 +86,7 @@ def input_cmd_run():
             'call' : None,
         },
         'set' : {
+            'message' : None,
             'auto' : { 'on' : None, 'off' : None},
             'hb' : { 'on' : None, 'off' : None},
             'callid' : { 'on' : None, 'off' : None},
@@ -106,31 +106,37 @@ def input_cmd_run():
     from pgw2memory import sessions
     while FLAG_EXIT == 'off':
         try:
+            time.sleep(0.1)
             line = input('prompt > ')
-            if line == 'quit':
+            if line.find('quit') == 0:
                 break
+            if line.find('set message') == 0:
+                set_message_json = MessageSetPrompt()
+                sessions['command'].transport.write(b'set message ' + set_message_json.encode())
+                continue
             if sessions['command'] is None:
                 continue
             sessions['command'].transport.write(line.encode())
-            time.sleep(0.1)
+
         except KeyboardInterrupt as e: 
             break;
 
     reactor.callFromThread(reactor.stop)
 
-def PyInquirerTest():
-    import regex
+def MessageSetPrompt():
+
+    import socket, struct, regex, ipaddress
     from pprint import pprint
-    from PyInquirer import style_from_dict, prompt, Token
-    from PyInquirer import Validator, ValidationError
-
-
-    class PhoneNumberValidator(Validator):
+    from PyInquirer import style_from_dict, prompt, Token, Validator, ValidationError
+    from pgw2memory import messageid_dict, calltype_dict
+    from define.pgw_define import _MESSAGE_ID
+    class IpValidator(Validator):
         def validate(self, document):
-            ok = regex.match('^([01]{1})?[-.\s]?\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})\s?((?:#|ext\.?\s?|x\.?\s?){1}(?:\d+)?)?$', document.text)
-            if not ok:
+            try:
+                ipaddress.ip_address(document.text)
+            except ValueError:
                 raise ValidationError(
-                    message='Please enter a valid phone number',
+                    message='Please enter a ip',
                     cursor_position=len(document.text))  # Move cursor to end
 
     class NumberValidator(Validator):
@@ -142,102 +148,20 @@ def PyInquirerTest():
                     message='Please enter a number',
                     cursor_position=len(document.text))  # Move cursor to end
 
-
-
-    questions = [
-        {
-            'type': 'confirm',
-            'name': 'toBeDelivered',
-            'message': 'Is this for delivery?',
-            'default': False
-        },
-        {
-            'type': 'input',
-            'name': 'phone',
-            'message': 'What\'s your phone number?',
-            'validate': PhoneNumberValidator
-        },
-        {
-            'type': 'list',
-            'name': 'size',
-            'message': 'What size do you need?',
-            'choices': ['Large', 'Medium', 'Small'],
-            'filter': lambda val: val.lower()
-        },
-        {
-            'type': 'input',
-            'name': 'quantity',
-            'message': 'How many do you need?',
-            'validate': NumberValidator,
-            'filter': lambda val: int(val)
-        },
-        {
-            'type': 'expand',
-            'name': 'toppings',
-            'message': 'What about the toppings?',
-            'choices': [
-                {
-                    'key': 'p',
-                    'name': 'Pepperoni and cheese',
-                    'value': 'PepperoniCheese'
-                },
-                {
-                    'key': 'a',
-                    'name': 'All dressed',
-                    'value': 'alldressed'
-                },
-                {
-                    'key': 'w',
-                    'name': 'Hawaiian',
-                    'value': 'hawaiian'
-                }
-            ]
-        },
-        {
-            'type': 'rawlist',
-            'name': 'beverage',
-            'message': 'You also get a free 2L beverage',
-            'choices': ['Pepsi', '7up', 'Coke']
-        },
-        {
-            'type': 'input',
-            'name': 'comments',
-            'message': 'Any comments on your purchase experience?',
-            'default': 'Nope, all good!'
-        },
-        {
-            'type': 'list',
-            'name': 'prize',
-            'message': 'For leaving a comment, you get a freebie',
-            'choices': ['cake', 'fries'],
-            'when': lambda answers: answers['comments'] != 'Nope, all good!'
-        }
-    ]
-
-    from define.pgw_define import _MESSAGE_ID
     
     myquestions = [
         {
-            'type': 'input',
-            'name': 'quantity',
-            'message': 'How many do you need?',
-            'validate': NumberValidator,
-            'filter': lambda val: int(val)
-        },
-        {
             'type': 'list',
-            'name': 'message-name',
+            'name': 'message_name',
             'message': 'select a message',
-            'choices': {msg_id.name : msg_id.value for msg_id in _MESSAGE_ID },
-            'validate': NumberValidator
-            # 'filter': lambda val: val.lower()
+            'choices': messageid_dict,
         },
         {
             'type': 'list',
-            'name': 'calltype',
+            'name': 'call_type',
             'message': 'select a calltype',
-            'choices': ['CT_PRIVATE', 'CT_GROUP', 'CT_EMER', 'CT_UDG', 'CT_ALERT', 'CT_RPC'],
-            # 'when' : lambda answers: answers['message-name'] != '_GW_STATUS' and answers['message-name'] != '_BUNCH_INFO'
+            'choices': calltype_dict,
+            'when' : lambda mssage_name: mssage_name['message_name'] != '_GW_STATUS' and mssage_name['message_name'] != '_BUNCH_INFO'
         },
     ]
 
@@ -249,15 +173,45 @@ def PyInquirerTest():
         Token.Question: '',
     })
 
-    from messages import body
-    test = [getattr(body, msg_id.name) for msg_id in _MESSAGE_ID]
-
     # answers = prompt(questions, style=style)
     # pprint(answers)
+    from messages import body
 
-    msg_names = prompt(myquestions, style=style)
-    print(msg_names)
-    pprint(msg_names)
+    selected_message = prompt(myquestions, style=style)
+    messageClass = None
+    if selected_message['message_name'] != '_GW_STATUS' and selected_message['message_name'] != '_BUNCH_INFO' :
+        messageClass = getattr(body, selected_message['message_name'])().Init(calltype_dict[selected_message['call_type']])
+    else:
+        messageClass = getattr(body, selected_message['message_name'])().Init()
+
+    def int_filter(value):
+        return int(value)
+
+    def ip_filter(ip):
+        return struct.unpack('I', socket.inet_aton(ip))[0]
+
+    data_questions = [ 
+        {
+            'type': 'input',
+            'name' : name ,
+            'message': 'input {0}'.format(name),
+            'validate': NumberValidator if name != 'media_ip' else IpValidator,
+            'filter': int_filter if name != 'media_ip' else ip_filter
+        } for name in messageClass.message_names if name != 'call_type'
+    ]
+    
+    selected_data = prompt(data_questions, style=style)
+    selected_message.update(selected_data)
+    import json
+    set_message_json = json.dumps(selected_message)
+    return set_message_json.replace(' ', '')
+
+    # for name, value in selected_data.items():
+    #     setattr(messageClass, name, value)
+
+    # print(selected_message)
+    # print(selected_data)
+    # print(messageClass.StringDump())
 
     
 
@@ -266,8 +220,6 @@ def PyInquirerTest():
 def cmdtest():
     import sys
     port = 5959
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1])
     
     from twisted.internet import reactor
     reactor.connectTCP("localhost", port, CmdClientFactory())
@@ -280,5 +232,6 @@ def cmdtest():
 
 
 if __name__ == '__main__':
-    PyInquirerTest()
+    cmdtest()
+    # MessageSetPrompt()
 

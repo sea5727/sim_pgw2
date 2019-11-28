@@ -9,9 +9,7 @@ import struct
 from call.CallManager import CallManager
 from config.configure import pgw2Config as config
 from logger import pgw2logger as logger
-
-
-switcher = {msgid.value: msgid.name for msgid in _MESSAGE_ID}
+from pgw2memory import messageid_switcher
 
 
 class Pgw2Protocol(Protocol):
@@ -44,7 +42,7 @@ class Pgw2Protocol(Protocol):
             logger.debug('RECV < Header : [len:{0}, {1}] ({2}) : '.format(h.GetSize(), h.GetBytes(), self.name))
             logger.debug('RECV < ' + h.StringDump())
             msgid = _MESSAGE_ID(h.gw_msgid)
-            message_name = switcher.get(msgid.value, None)
+            message_name = messageid_switcher.get(msgid.value, None)
             callid = -1
             msg = getattr(messages.body, message_name)(data[h.GetSize():h.GetSize() + h.length])
             logger.debug('RECV < msg : [len:{0}, {1}] ({2}) : '.format(msg.GetSize(), msg.GetBytes(), self.name))

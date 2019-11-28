@@ -47,11 +47,15 @@ def main():
     from config.configure import pgw2Config as config
     from logger import pgw2logger as logger
 
-    logger.info('######## START ##########')
+    
     listen_port = config.listen_port
+    connect_ip = config.connect_ip
     connect_port = config.connect_port
-    logger.info('open port : {0}, connect port : {1}'.format(listen_port, connect_port))
+    ctl_port = config.listen_ctl
 
+    logger.info('############### START ##############')
+    logger.info('connect ip : {0} , connect port : {1}'.format(connect_ip, connect_port))
+    logger.info('listen port : {0} , ctl port : {1}'.format(listen_port, ctl_port))
     
     from twisted.internet import reactor
     from server import Pgw2ServerFactory
@@ -62,7 +66,7 @@ def main():
     reactor.listenTCP(listen_port, Pgw2ServerFactory())
     reactor.connectTCP(config.connect_ip, connect_port, Pgw2ClientFactory())
 
-    reactor.listenTCP(config.listen_ctl, CmdServerFactory())
+    reactor.listenTCP(ctl_port, CmdServerFactory())
 
     if config.background == 'off':
         reactor.connectTCP("localhost", config.listen_ctl, CmdClientFactory())
