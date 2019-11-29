@@ -5,11 +5,10 @@ from pgw2memory import sessions
 from messages import body
 from call.CallManager import CallManager
 import proc
-import socket
-import struct
 from config.configure import pgw2Config as config
 from logger import LogManager
 from logger import pgw2logger as logger
+
 
 class CmdServerFactory(protocol.Factory):
     def buildProtocol(self, addr):
@@ -18,11 +17,12 @@ class CmdServerFactory(protocol.Factory):
 
 class CommandProtocol(protocol.Protocol):
     delimiter = b'\n'   # unix terminal style newlines. remove this line
-    # for use with Telnet
+
     def __init__(self):
         super().__init__()
-        self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
-
+        self.messages = {
+            msgname: getattr(body, msgname)().Init() for msgname in body.__all__
+            }
 
     def connectionMade(self):
         logger.debug('cmd line protocol connection made!!')
@@ -83,7 +83,6 @@ class CommandProtocol(protocol.Protocol):
         else:
             classname = '_' + '_'.join(args[1:]).upper()
             method(session=sessions['server'], body=self.messages[classname])
-        
 
     def do_client(self, *args):
         """client: Proc like client"""
@@ -118,14 +117,13 @@ class CommandProtocol(protocol.Protocol):
         if args[0] == 'message':
             if args[1] == 'all':
                 for msg_key in self.messages:
-                    self.transport.write(self.messages[msg_key].StringDump().encode())
+                    self.transport.write(self.messages[msg_key].StringDump().encode() + b'\n')
                 return
             msgname = '_'.join(args[1:]).upper()
             if msgname not in self.messages:
                 if '_' + msgname in self.messages:
                     msgname = '_' + msgname
             self.transport.write(self.messages[msgname].StringDump().encode())
-
 
     def do_reset(self, *args):
         """show: print infomation"""
@@ -135,10 +133,10 @@ class CommandProtocol(protocol.Protocol):
         import json
         from pgw2memory import calltype_dict
         set_messages = args[0]
-        message_dict = json.loads(set_messages) 
+        message_dict = json.loads(set_messages)
         message_name = message_dict['message_name']
         message_dict.pop('message_name')
-        
+
         for data_name, data_value in message_dict.items():
             if data_name == 'call_type':
                 setattr(self.messages[message_name], data_name, calltype_dict[data_value])
@@ -168,7 +166,7 @@ class CommandProtocol(protocol.Protocol):
     def set_loglevel(self, *args):
         level = args[0]
         level = level.upper()
-        if level not in ('DEBUG' , 'INFO', 'WARNING', 'FATAL', 'CRITICAL'):
+        if level not in ('DEBUG', 'INFO', 'WARNING', 'FATAL', 'CRITICAL'):
             return
 
         config.manual_log_level = level
@@ -195,9 +193,6 @@ class CommandProtocol(protocol.Protocol):
         # reactor.stop()
 
 
-
 if __name__ == "__main__":
     stdio.StandardIO(CommandProtocol())
     reactor.run()
-
-

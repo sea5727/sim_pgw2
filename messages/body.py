@@ -68,7 +68,7 @@ class _GW_STATUS(ISerializable):
         dump += 'cmd : [{0}] '.format(self.cmd)
         dump += 'state : [{0}] '.format(self.state)
         return dump
-        
+
     def PrintDump(self):
         print(self.StringDump())
 
@@ -166,7 +166,7 @@ class _CALL_SETUP_REQ(ISerializable):
             dump += 'media_ip : [{0}]  '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
             dump += 'media_port : [{0}]  '.format(self.media_port)
             return dump
-        
+
         def PrintDump(self):
             print(self.StringDump())
 
@@ -230,7 +230,7 @@ class _CALL_SETUP_REQ(ISerializable):
             dump += 'media_ip : [{0}]  '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
             dump += 'media_port : [{0}]  '.format(self.media_port)
             return dump
-            
+
         def PrintDump(self):
             print(self.StringDump())
 
@@ -883,7 +883,7 @@ class _MEDIA_OFF_REQ(ISerializable):
         dump += 'reserve2 : [{0}] '.format(self.reserve2)
         dump += 'r_call_id : [{0}] '.format(self.r_call_id)
         return dump
-        
+
     def PrintDump(self):
         print(self.StringDump())
 

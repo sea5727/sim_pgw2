@@ -1,8 +1,7 @@
 import configparser
 
-class Config:
 
-    test = None
+class Config:
 
     def __new__(cls, path=None):
         if not hasattr(cls, 'instance'):
@@ -28,14 +27,20 @@ class Config:
         self.manual_reconnect_interval = 1
         self.manual_flag_automode = 'off'
         self.manual_flag_hb = 'off'
-        self.manual_flag_rtp = 'off'  
-        
+        self.manual_flag_rtp = 'off'
 
-    # def __init__(self, path=None):
-        
-    #     self.config = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
-    #     print('__init__path:{0} config:{1}'.format(path, self.config))
-    #     self.config.read(path)
+    def StringDump(self):
+        dump = ''
+        members = [attr for attr in dir(self) if (
+            not callable(getattr(self, attr)) and
+            not attr.startswith("__") and
+            not attr in['config', 'instance']
+            )]
+
+        for member in members:
+            dump += '{0} : {1} \n'.format(member, getattr(self, member))
+        return dump
+
     @property
     def log_path(self):
         if hasattr(self, 'manual_log_path') and self.manual_log_path is not None:
@@ -94,7 +99,10 @@ class Config:
     def reconnect_interval(self):
         if hasattr(self, 'manual_reconnect_interval') and self.manual_reconnect_interval is not None:
             return float(self.manual_reconnect_interval)
-        return float(self.config[self.section]['reconnect-interval']) if self.config.has_option(self.section, 'reconnect-interval') else 1
+        if self.config.has_option(self.section, 'reconnect-interval'):
+            return float(self.config[self.section]['reconnect-interval'])
+        else:
+            return 1
 
     @property
     def flag_automode(self):
@@ -117,6 +125,7 @@ class Config:
 
 pgw2Config = Config()
 
+
 def main():
     print('1')
     testconf = Config()
@@ -129,6 +138,7 @@ def main():
     print(testconf)
     test = Config()
     print(test)
+
 
 if __name__ == '__main__':
     main()

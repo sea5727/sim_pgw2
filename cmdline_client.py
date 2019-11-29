@@ -1,17 +1,27 @@
 from twisted.internet import protocol
 from pgw2memory import sessions
+import readline
+import struct
+import ipaddress
+import socket
+from PyInquirer import style_from_dict, prompt, Token
+from PyInquirer import Validator, ValidationError
+from pgw2memory import messageid_dict, calltype_dict
 
-FLAG_EXIT = 'off'
+
+class CmdManager:
+    FLAG_EXIT = 'off'
+
 
 class CmdClientProtocol(protocol.Protocol):
-    
+
     def connectionMade(self):
         self.transport.write(b"help")
 
     def dataReceived(self, data):
         print(data.decode())
         if data.decode() == 'Goodbye.':
-            FLAG_EXIT = 'on'
+            CmdManager.FLAG_EXIT = 'on'
 
 
 class CmdClientFactory(protocol.ReconnectingClientFactory):
@@ -29,82 +39,80 @@ class CmdClientFactory(protocol.ReconnectingClientFactory):
         super().clientConnectionLost(connector, unused_reason)
 
 
-def input_cmd_run():
-    import readline
-    readline.parse_and_bind("tab: complete")
+class ARLCompleter:
+    def __init__(self, logic):
+        self.logic = logic
 
-    class ARLCompleter:
-        def __init__(self,logic):
-            self.logic = logic
-
-        def traverse(self,tokens,tree):
-            if tree is None:
-                return []
-            elif len(tokens) == 0:
-                return []
-            if len(tokens) == 1:
-                return [x+' ' for x in tree if x.startswith(tokens[0])]
-            else:
-                if tokens[0] in tree.keys():
-                    return self.traverse(tokens[1:],tree[tokens[0]])
-                else:
-                    return []
+    def traverse(self, tokens, tree):
+        if tree is None:
             return []
+        elif len(tokens) == 0:
+            return []
+        if len(tokens) == 1:
+            return [x + ' ' for x in tree if x.startswith(tokens[0])]
+        else:
+            if tokens[0] in tree.keys():
+                return self.traverse(tokens[1:], tree[tokens[0]])
+            else:
+                return []
+        return []
 
-        def complete(self,text,state):
-            try:
-                tokens = readline.get_line_buffer().split()
-                if not tokens or readline.get_line_buffer()[-1] == ' ':
-                    tokens.append('')
-                results = self.traverse(tokens,self.logic) + [None]
-                return results[state]
-            except Exception as e:
-                print(e)
+    def complete(self, text, state):
+        try:
+            tokens = readline.get_line_buffer().split()
+            if not tokens or readline.get_line_buffer()[-1] == ' ':
+                tokens.append('')
+            results = self.traverse(tokens, self.logic) + [None]
+            return results[state]
+        except Exception as e:
+            print(e)
 
+
+def input_cmd_run():
+    readline.parse_and_bind("tab: complete")
     messagename = {
-        '_gw_status' : None,
-        '_call_setup_req' : None,
-        '_call_setup_res' : None,
-        '_media_on_req' : None,
-        '_media_on_res' : None,
-        '_media_off_req' : None,
-        '_media_off_res' : None,
-        '_media_on_noti' : None,
-        '_media_off_noti' : None,
-        '_call_leave_req' : None,
-        '_call_leave_res' : None,
-        '_call_end_noti' : None,
-        '_bunch_info' : None,
+        '_gw_status': None,
+        '_call_setup_req': None,
+        '_call_setup_res': None,
+        '_media_on_req': None,
+        '_media_on_res': None,
+        '_media_off_req': None,
+        '_media_off_res': None,
+        '_media_on_noti': None,
+        '_media_off_noti': None,
+        '_call_leave_req': None,
+        '_call_leave_res': None,
+        '_call_end_noti': None,
+        '_bunch_info': None,
+        'all': None
     }
 
-    funcname = {'send' + message  : None for message in messagename}
+    funcname = {'send' + message: None for message in messagename}
+
     logic = {
-        'help' : None,
+        'help': None,
         'quit': None,
-        'show' : {
-            'message' : messagename,
-            'call' : None,
+        'show': {
+            'message': messagename,
+            'call': None,
         },
-        'set' : {
-            'message' : None,
-            'auto' : { 'on' : None, 'off' : None},
-            'hb' : { 'on' : None, 'off' : None},
-            'callid' : { 'on' : None, 'off' : None},
+        'set': {
+            'message': None,
+            'auto': {'on': None, 'off': None},
+            'hb': {'on': None, 'off': None},
+            'callid': {'on': None, 'off': None},
         },
-        'client' : funcname,
-        'server' : funcname
+        'client': funcname,
+        'server': funcname
     }
-
 
     completer = ARLCompleter(logic)
     readline.set_completer(completer.complete)
 
     import time
-    import sys
-    import struct
     from twisted.internet import reactor
     from pgw2memory import sessions
-    while FLAG_EXIT == 'off':
+    while CmdManager.FLAG_EXIT == 'off':
         try:
             time.sleep(0.1)
             line = input('prompt > ')
@@ -112,24 +120,21 @@ def input_cmd_run():
                 break
             if line.find('set message') == 0:
                 set_message_json = MessageSetPrompt()
-                sessions['command'].transport.write(b'set message ' + set_message_json.encode())
+                sessions['command'].transport.write(
+                    b'set message ' + set_message_json.encode())
                 continue
             if sessions['command'] is None:
                 continue
             sessions['command'].transport.write(line.encode())
 
-        except KeyboardInterrupt as e: 
-            break;
+        except KeyboardInterrupt:
+            break
 
     reactor.callFromThread(reactor.stop)
 
+
 def MessageSetPrompt():
 
-    import socket, struct, regex, ipaddress
-    from pprint import pprint
-    from PyInquirer import style_from_dict, prompt, Token, Validator, ValidationError
-    from pgw2memory import messageid_dict, calltype_dict
-    from define.pgw_define import _MESSAGE_ID
     class IpValidator(Validator):
         def validate(self, document):
             try:
@@ -148,7 +153,6 @@ def MessageSetPrompt():
                     message='Please enter a number',
                     cursor_position=len(document.text))  # Move cursor to end
 
-    
     myquestions = [
         {
             'type': 'list',
@@ -161,7 +165,10 @@ def MessageSetPrompt():
             'name': 'call_type',
             'message': 'select a calltype',
             'choices': calltype_dict,
-            'when' : lambda mssage_name: mssage_name['message_name'] != '_GW_STATUS' and mssage_name['message_name'] != '_BUNCH_INFO'
+            'when': lambda mssage_name: (
+                mssage_name['message_name'] != '_GW_STATUS' and
+                mssage_name['message_name'] != '_BUNCH_INFO'
+                )
         },
     ]
 
@@ -179,10 +186,13 @@ def MessageSetPrompt():
 
     selected_message = prompt(myquestions, style=style)
     messageClass = None
-    if selected_message['message_name'] != '_GW_STATUS' and selected_message['message_name'] != '_BUNCH_INFO' :
-        messageClass = getattr(body, selected_message['message_name'])().Init(calltype_dict[selected_message['call_type']])
+    if (selected_message['message_name'] != '_GW_STATUS' and
+            selected_message['message_name'] != '_BUNCH_INFO'):
+        messageClass = getattr(body, selected_message['message_name'])()
+        messageClass.Init(calltype_dict[selected_message['call_type']])
     else:
-        messageClass = getattr(body, selected_message['message_name'])().Init()
+        messageClass = getattr(body, selected_message['message_name'])()
+        messageClass.Init()
 
     def int_filter(value):
         return int(value)
@@ -190,37 +200,26 @@ def MessageSetPrompt():
     def ip_filter(ip):
         return struct.unpack('I', socket.inet_aton(ip))[0]
 
-    data_questions = [ 
+    data_questions = [
         {
             'type': 'input',
-            'name' : name ,
+            'name': name,
             'message': 'input {0}'.format(name),
             'validate': NumberValidator if name != 'media_ip' else IpValidator,
             'filter': int_filter if name != 'media_ip' else ip_filter
         } for name in messageClass.message_names if name != 'call_type'
     ]
-    
+
     selected_data = prompt(data_questions, style=style)
     selected_message.update(selected_data)
     import json
     set_message_json = json.dumps(selected_message)
     return set_message_json.replace(' ', '')
 
-    # for name, value in selected_data.items():
-    #     setattr(messageClass, name, value)
-
-    # print(selected_message)
-    # print(selected_data)
-    # print(messageClass.StringDump())
-
-    
-
-
 
 def cmdtest():
-    import sys
     port = 5959
-    
+
     from twisted.internet import reactor
     reactor.connectTCP("localhost", port, CmdClientFactory())
 
@@ -234,4 +233,3 @@ def cmdtest():
 if __name__ == '__main__':
     cmdtest()
     # MessageSetPrompt()
-
