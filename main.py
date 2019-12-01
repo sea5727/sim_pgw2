@@ -1,3 +1,4 @@
+
 def arguments_and_config_set():
     import argparse
     parser = argparse.ArgumentParser()
@@ -12,7 +13,7 @@ def arguments_and_config_set():
 
     args = parser.parse_args()
 
-    from config.configure import pgw2Config as config
+    from pgw2memory import pgw2Config as config
 
     if args.config_file:
         if args.config_section is None:
@@ -44,34 +45,48 @@ def main():
 
     arguments_and_config_set()
 
-    from config.configure import pgw2Config as config
-    from logger import pgw2logger as logger
+    from pgw2memory import pgw2Config as config
+    from logger.pyLogger import pgw2logger as logger
 
     logger.info('############### START ##############')
     logger.info(config.StringDump())
 
     from twisted.internet import reactor
-    from server import Pgw2ServerFactory
-    from client import Pgw2ClientFactory
-    from cmdline import CmdServerFactory
-    from cmdline_client import CmdClientFactory
+    from protocol.pgw2ServerFactory import Pgw2ServerFactory
+    from protocol.Pgw2ClientFactory import Pgw2ClientFactory
+    from commandline.cmdline_server_proc import PgwCommandLineServerFactory
+    # from cmdline import CmdServerFactory
+    # from cmdline_client import CmdClientFactory
 
     reactor.listenTCP(config.listen_port, Pgw2ServerFactory())
     reactor.connectTCP(config.connect_ip, config.connect_port, Pgw2ClientFactory())
-
-    reactor.listenTCP(config.listen_ctl, CmdServerFactory())
+    reactor.listenTCP(config.listen_ctl, PgwCommandLineServerFactory())
 
     if config.background == 'off':
-        reactor.connectTCP("localhost", config.listen_ctl, CmdClientFactory())
+        # reactor.connectTCP("localhost", config.listen_ctl, CmdClientFactory())
 
         from threading import Thread
         Thread(target=reactor.run, args=(False,)).start()
-        from cmdline_client import input_cmd_run
+        # from cmdline_client import input_cmd_run
+        # input_cmd_run()
 
-        input_cmd_run()
+        from commandline.cmdline_client_proc import PgwCommandLineClient
+        import asyncio
+
+        loop = asyncio.get_event_loop()
+        cmdlineClient = PgwCommandLineClient()
+        loop.run_until_complete(cmdlineClient.InitSession('127.0.0.1',  config.listen_ctl))
+        try:
+            cmdlineClient.Run()
+        except Exception:
+            print('Main Except..')
+        finally:
+            reactor.callFromThread(reactor.stop)
     else:
         reactor.run()
 
 
 if __name__ == '__main__':
+    import sys
+    print(sys.argv)
     main()

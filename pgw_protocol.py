@@ -3,12 +3,12 @@ from twisted.internet.protocol import Protocol
 from messages.header import _PGW_MSG_HEAD
 from define.pgw_define import _MESSAGE_ID, _CALL_TYPE
 import messages.body
-import proc
+from protocol import proc
 import socket
 import struct
 from call.CallManager import CallManager
-from config.configure import pgw2Config as config
-from logger import pgw2logger as logger
+from pgw2memory import pgw2Config as config
+from logger.pyLogger import pgw2logger as logger
 from pgw2memory import messageid_switcher
 
 
@@ -21,14 +21,14 @@ class Pgw2Protocol(Protocol):
 
     def connectionMade(self):
         self.count += 1
-        print(self.transport.socket)
-        print('{0} connectionMade{1}'.format(self.name, self.count))
+        logger.debug(self.transport.socket)
+        logger.debug('{0} connectionMade{1}'.format(self.name, self.count))
         if self.name == 'CLIENT' and config.flag_hb == 'on':
             self.hb = LoopingCall(proc.send_gw_status, self, cmd=1, state=1)
             self.hb.start(10, now=True)
 
     def connectionLost(self, reason):
-        print('{0} connectionLost reason:{1}'.format(self.name, reason))
+        logger.debug('{0} connectionLost reason:{1}'.format(self.name, reason))
         if self.name != 'CLIENT':
             return
         if hasattr(self, 'hb') and self.hb is not None:

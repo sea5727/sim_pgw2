@@ -1,13 +1,13 @@
 import logging
 import logging.handlers as handlers
-import time
-from config.configure import pgw2Config as config
+from pgw2memory import pgw2Config as config
+
 
 class LogManager:
     logger = None
 
     def __init__(self):
-        if LogManager.logger != None:
+        if LogManager.logger is not None:
             raise Exception("This class is a singleton!")
         else:
             LogManager.logger = logging.getLogger('pgw2')
@@ -15,7 +15,7 @@ class LogManager:
 
             if config.log_stderr == 'on':
                 LogManager.add_stream_handler()
-            
+
             if config.log_path is not None:
                 LogManager.add_log_file_handler(config.log_path)
 
@@ -29,7 +29,7 @@ class LogManager:
             return
         logHandler = handlers.TimedRotatingFileHandler(log_path, when='MIDNIGHT', interval=1, backupCount=10)
         # datefmt="%Y-%m-%d %H:%M:%S"
-        logformatter = logging.Formatter('[%(asctime)s][%(levelname)s] %(name)s - %(message)s, test:%(msecs)d, %(relativeCreated)d')
+        logformatter = logging.Formatter('[%(asctime)s][%(levelname)s] %(name)s - %(message)s')
         logHandler.setFormatter(logformatter)
         LogManager.logger.addHandler(logHandler)
 
@@ -54,11 +54,10 @@ class LogManager:
         for handler in LogManager.logger.handlers:
             if type(handler) == logging.StreamHandler:
                 LogManager.logger.removeHandler(handler)
-            
 
     @staticmethod
     def getInstance():
-        if LogManager.logger == None:
+        if LogManager.logger is None:
             LogManager()
         return LogManager.logger
 

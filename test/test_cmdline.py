@@ -4,11 +4,11 @@ from twisted.internet.protocol import Protocol
 from pgw2memory import sessions
 from messages import body
 from call.CallManager import CallManager
-import proc
+from protocol import proc
 import socket
 import struct
-from config.configure import pgw2Config as config
-from logger import LogManager as logger
+from pgw2memory import pgw2Config as config
+from logger.pyLogger import LogManager as logger
 
 class CommandProtocol(Protocol):
     delimiter = b'\n'   # unix terminal style newlines. remove this line

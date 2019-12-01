@@ -6,6 +6,7 @@ from pgw2memory import sessions
 class Pgw2ServerFactory(protocol.ServerFactory):
 
     protocol = Pgw2Protocol(sessions, 'SERVER')
+
     def buildProtocol(self, addr):
         sessions['server'] = Pgw2ServerFactory.protocol
         return Pgw2ServerFactory.protocol

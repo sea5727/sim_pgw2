@@ -20,8 +20,8 @@ from call.CallManager import CallManager
 import socket
 import struct
 import sys
-from config.configure import pgw2Config as config
-from logger import pgw2logger as logger
+from pgw2memory import pgw2Config as config
+from logger.pyLogger import pgw2logger as logger
 
 __all__ = [
     'send_gw_status',
@@ -41,12 +41,16 @@ __all__ = [
 
 test_ip = '192.168.0.166'
 
+
 def send_message(session, body):
+    if session is None:
+        logger.info('SEND > Fail {0}'.format(type(body)))
+        return
     msg = _MESSAGE(body)
     logger.debug('SEND > {0} : {1}, len:{2}'.format(msg.header.gw_msgid, msg.GetBytes(), msg.GetSize()))
     logger.info('SEND > ' + msg.body.StringDump())
     session.transport.write(msg.GetBytes())
-    
+
 
 def send_gw_status(session, body=None, cmd=1, state=1):
 

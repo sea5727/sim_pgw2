@@ -106,8 +106,8 @@ class Config:
 
     @property
     def flag_automode(self):
-        if hasattr(self, 'manual_automode') and self.manual_automode is not None:
-            return self.manual_automode
+        if hasattr(self, 'manual_flag_automode') and self.manual_flag_automode is not None:
+            return self.manual_flag_automode
         return self.config[self.section]['flag-automode'] if self.config.has_option(self.section, 'flag-automode') else 'off'
 
     @property
@@ -123,10 +123,8 @@ class Config:
         return self.config[self.section]['flag-rtp'] if self.config.has_option(self.section, 'flag-rtp') else 'off'
 
 
-pgw2Config = Config()
-
-
 def main():
+    pgw2Config = Config()
     print('1')
     testconf = Config()
     print('2')
