@@ -10,7 +10,7 @@ from gi.repository import GObject, Gst
 #                rtpbin.send_rtcp_src_0 ! udpsink port=10001 host=xxx.xxx.xxx.xxx sync=false async=false \
 #                udpsrc port=10002 ! rtpbin.recv_rtcp_sink_0
 
-class RTP:
+class RtpSender:
     def InitRtp(self, to_ip, to_port):
         DEST_HOST = to_ip
 
@@ -76,3 +76,13 @@ class RTP:
 
     def RestartRtp(self):
         Gst.Element.set_state(self.pipeline, Gst.State.PLAYING)
+
+
+def main():
+    print('main')
+    rtp = RtpSender()
+    rtp.InitRtp('127.0.0.1', 12345)
+
+
+if __name__ == '__main__':
+    main()
