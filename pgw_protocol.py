@@ -50,7 +50,8 @@ class Pgw2Protocol(Protocol):
 
             if config.flag_hb == 'on':
                 if type(msg) is messages.body._GW_STATUS and msg.cmd == messages.body._GW_STATUS.KeepAliveRequest:
-                    proc.send_gw_status(self, cmd=messages.body._GW_STATUS.KeepAliveResponse, state=messages.body._GW_STATUS.ConnectedWithPTALKServer)
+                    proc.send_gw_status(self, cmd=messages.body._GW_STATUS.KeepAliveResponse,
+                                        state=messages.body._GW_STATUS.ConnectedWithPTALKServer)
 
             if config.flag_rtp == 'on':
                 if type(msg) in (messages.body._CALL_SETUP_REQ, messages.body._CALL_SETUP_RES):
@@ -63,13 +64,18 @@ class Pgw2Protocol(Protocol):
                 if type(msg) is messages.body._CALL_SETUP_REQ:
                     if config.flag_rtp == 'off':
                         callid = CallManager.makeCallId()
-                    proc.send_call_setup_res(self, calltype=msg.call_type, result=0, reserve2=0, s_call_id=callid, r_call_id=msg.s_call_id, media_ip='127.0.0.1', media_port=5)
+                    proc.send_call_setup_res(self,
+                                             calltype=msg.call_type,
+                                             result=0,
+                                             reserve2=0,
+                                             s_call_id=callid,
+                                             r_call_id=msg.s_call_id,
+                                             media_ip='127.0.0.1',
+                                             media_port=5)
+
                 elif type(msg) is messages.body._MEDIA_ON_REQ:
                     proc.send_media_on_res(self, calltype=msg.call_type, result=0, reserve2=0, r_call_id=msg.r_call_id)
                 elif type(msg) is messages.body._MEDIA_OFF_REQ:
                     proc.send_media_off_res(self, calltype=msg.call_type, result=0, reserve2=0, r_call_id=msg.r_call_id)
 
-
-
-                
             data = data[h.GetSize() + h.length:]

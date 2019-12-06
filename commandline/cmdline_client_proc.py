@@ -78,7 +78,7 @@ class PgwCommandLineClient:
         config_path = json.loads(read_data.decode())
 
         f = subprocess.Popen(
-            ['tail', '-f', config_path['log_path']],
+            ['tail', '-18f', config_path['log_path']],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         p = select.poll()

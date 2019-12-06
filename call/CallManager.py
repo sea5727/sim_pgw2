@@ -1,4 +1,4 @@
-from rtp.Rtp import RTP
+from rtp.RtpSender import RtpSender as RTP
 
 DEFAUT_CALLID = 5000
 
@@ -23,21 +23,25 @@ class CallManager:
 
     @staticmethod
     def GenerateCall(to_ip, to_port, callid):
+        return
         rtp = RTP()
         rtp.InitRtp(to_ip, to_port)
         CallManager.Manager[callid] = rtp
 
     @staticmethod
     def StartCall(callid):
+        return
         rtp = CallManager.Manager[callid]
         rtp.SendRtp()
         # recieve?
 
     @staticmethod
     def PauseCall(callid):
+        return
         rtp = CallManager.Manager[callid]
         rtp.PauseRtp()
 
     def StopCall(self, callid):
+        return
         rtp = CallManager.Manager[callid]
         rtp.PauseRtp()

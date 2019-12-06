@@ -81,7 +81,10 @@ class RtpSender:
 def main():
     print('main')
     rtp = RtpSender()
-    rtp.InitRtp('127.0.0.1', 12345)
+    rtp.InitRtp('192.168.0.192', 12345)
+    rtp.SendRtp()
+    import time
+    time.sleep(1000)
 
 
 if __name__ == '__main__':
