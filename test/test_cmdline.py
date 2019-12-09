@@ -10,13 +10,14 @@ import struct
 from pgw2memory import pgw2Config as config
 from logger.pyLogger import LogManager as logger
 
+
 class CommandProtocol(Protocol):
     delimiter = b'\n'   # unix terminal style newlines. remove this line
     # for use with Telnet
+
     def __init__(self):
         super().__init__()
-        self.messages = {msgname : getattr(body, msgname)().Init() for msgname in body.__all__}
-
+        self.messages = {msgname: getattr(body, msgname)().Init() for msgname in body.__all__}
 
     def connectionMade(self):
         self.sendLine(b"cmd console. Type 'help' for help.")
@@ -116,7 +117,6 @@ class CommandProtocol(Protocol):
                     msgname = '_' + msgname
             self.messages[msgname].PrintDump()
 
-
     def do_reset(self, *args):
         """show: print infomation"""
         print('todo')
@@ -124,7 +124,7 @@ class CommandProtocol(Protocol):
     def set_message(self, *args):
         set_value = []
         cmd_list = list(args)
-        
+
         for cmd in args:
             if '=' in cmd:
                 set_value.append(cmd)

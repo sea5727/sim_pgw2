@@ -1,6 +1,6 @@
 from pgw2memory import messageid_dict, calltype_dict
 from PyInquirer import style_from_dict, Token
-from commandline.cmdline_common import NumberValidator, IpValidator
+from commandline.cmdline_common import CallIdValidator, NumberValidator, IpValidator
 
 
 style = style_from_dict({
@@ -61,8 +61,9 @@ Message_CallType_Question = [
 ]
 
 
-def test(value):
-    return int(value)
+def test(name):
+    print('name : ', name)
+    return 'asdfsadf'
 
 
 def GetMessageMemberQuestion(messageClass):
@@ -71,7 +72,8 @@ def GetMessageMemberQuestion(messageClass):
             'type': 'input',
             'name': name,
             'message': 'input {0}'.format(name),
-            'validate': NumberValidator if name != 'media_ip' else IpValidator,
+            'validate':  CallIdValidator if name == 's_call_id' else NumberValidator if name != 'media_ip' else IpValidator,
+            'default': '',
             # asyncio 를 사용하려면 filter가 없어야함.
             # 'filter': (lambda value: int(value)) if name != 'media_ip' else (lambda ip: struct.unpack('I', socket.inet_aton(ip))[0])
         } for name in messageClass.message_names if name != 'call_type'

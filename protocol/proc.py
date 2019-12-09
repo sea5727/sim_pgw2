@@ -11,16 +11,11 @@ from messages.body import (
     _CALL_LEAVE_REQ,
     _CALL_LEAVE_RES,
     _CALL_END_NOTI,
-    _BUNCH_INFO,
-    _CALL_AUDIT_REQ,
-    _CALL_AUDIT_RES)
+    _BUNCH_INFO)
 from messages.message import _MESSAGE
 from define.pgw_define import _CALL_TYPE
-from call.CallManager import CallManager
 import socket
 import struct
-import sys
-from pgw2memory import pgw2Config as config
 from logger.pyLogger import pgw2logger as logger
 
 __all__ = [
@@ -61,7 +56,7 @@ def send_gw_status(session, body=None, cmd=1, state=1):
         body.state = state
 
     send_message(session, body)
-    
+
 
 def send_call_setup_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, priority=1, reserve2=2, s_call_id=3, o_ssid=4, t_ssid=5, media_ip='127.0.0.1', media_port=7):
     if body is None:

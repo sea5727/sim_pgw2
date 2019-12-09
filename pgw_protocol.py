@@ -4,12 +4,12 @@ from messages.header import _PGW_MSG_HEAD
 from define.pgw_define import _MESSAGE_ID
 import messages.body
 from protocol import proc
-import socket
-import struct
-from call.CallManager import CallManager
 from pgw2memory import pgw2Config as config
 from logger.pyLogger import pgw2logger as logger
 from pgw2memory import messageid_switcher
+from pgw2memory import pgw2CallManager
+import struct
+import socket
 
 
 class Pgw2Protocol(Protocol):
@@ -48,34 +48,46 @@ class Pgw2Protocol(Protocol):
             logger.debug('RECV < msg : [len:{0}, {1}] ({2}) : '.format(msg.GetSize(), msg.GetBytes(), self.name))
             logger.info('RECV < ' + msg.StringDump())
 
+            if type(msg) is messages.body._CALL_SETUP_RES:
+                callid = pgw2CallManager.getCallId(msg.r_call_id)
+                if callid is not None:
+                    pgw2CallManager.setCallId(callid, msg.s_call_id)
+
             if config.flag_hb == 'on':
                 if type(msg) is messages.body._GW_STATUS and msg.cmd == messages.body._GW_STATUS.KeepAliveRequest:
                     proc.send_gw_status(self, cmd=messages.body._GW_STATUS.KeepAliveResponse,
                                         state=messages.body._GW_STATUS.ConnectedWithPTALKServer)
 
-            if config.flag_rtp == 'on':
-                if type(msg) in (messages.body._CALL_SETUP_REQ, messages.body._CALL_SETUP_RES):
-                    callid = CallManager.makeCallId()
-                    to_ip = socket.inet_ntoa(struct.pack("=I", msg.media_ip))
-                    to_port = msg.media_port
-                    CallManager.GenerateCall(to_ip, to_port, callid)
-
             if config.flag_automode == 'on':
                 if type(msg) is messages.body._CALL_SETUP_REQ:
-                    if config.flag_rtp == 'off':
-                        callid = CallManager.makeCallId()
-                    proc.send_call_setup_res(self,
-                                             calltype=msg.call_type,
-                                             result=0,
-                                             reserve2=0,
-                                             s_call_id=callid,
-                                             r_call_id=msg.s_call_id,
-                                             media_ip='127.0.0.1',
-                                             media_port=5)
+                    callid = pgw2CallManager.makeCallId()
+                    pgw2CallManager.setCallId(callid, msg.s_call_id)
+                    res = messages.body._CALL_SETUP_RES()
+                    res.Init(msg.call_type)
+                    res.result = 0
+                    res.s_call_id = callid
+                    res.r_call_id = msg.s_call_id
+                    res.media_ip = socket.inet_aton('127.0.0.1')[0]
+                    res.media_port = 5555
+                    proc.send_call_setup_res(self, res)
 
                 elif type(msg) is messages.body._MEDIA_ON_REQ:
-                    proc.send_media_on_res(self, calltype=msg.call_type, result=0, reserve2=0, r_call_id=msg.r_call_id)
+                    callid = pgw2CallManager.getCallId(msg.r_call_id)
+                    if callid is None:
+                        callid = 12345
+                    proc.send_media_on_res(self,
+                                           calltype=msg.call_type,
+                                           result=0,
+                                           reserve2=0,
+                                           r_call_id=callid)
                 elif type(msg) is messages.body._MEDIA_OFF_REQ:
-                    proc.send_media_off_res(self, calltype=msg.call_type, result=0, reserve2=0, r_call_id=msg.r_call_id)
+                    callid = pgw2CallManager.getCallId(msg.r_call_id)
+                    if callid is None:
+                        callid = 12345
+                    proc.send_media_off_res(self,
+                                            calltype=msg.call_type,
+                                            result=0,
+                                            reserve2=0,
+                                            r_call_id=callid)
 
             data = data[h.GetSize() + h.length:]
