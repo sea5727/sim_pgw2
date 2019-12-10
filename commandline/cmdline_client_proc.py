@@ -28,9 +28,9 @@ class PgwCommandLineClient:
 
         while 1:
             try:
-                os.system('cls' if os.name == 'nt' else 'clear')
+                # os.system('cls' if os.name == 'nt' else 'clear')
                 print(f.renderText('PGW2 simulator'))
-                answer = prompt(Main_Question, style=style)
+                answer = prompt(Main_Question)#, style=style)
 
                 if len(answer) == 0:
                     break
@@ -131,7 +131,7 @@ class PgwCommandLineClient:
         read_data = self.ReadCoroutine(1)
 
         Mode_Choices = json.loads(read_data.decode())['Mode_Choices']
-        answer = prompt(GetModeQuestion(Mode_Choices), style=style)
+        answer = prompt(GetModeQuestion(Mode_Choices))#, style=style)
         selected_modes = answer['Mode_Question']
 
         for idx, value in enumerate(Mode_Choices):
@@ -142,7 +142,7 @@ class PgwCommandLineClient:
 
     def Do_Send_Message(self):
         print('Do_Send_Message')
-        answer = prompt(Send_Message_Question, style=style)
+        answer = prompt(Send_Message_Question)#, style=style)
         message_name = answer['Send_Message']
         if message_name == 'Go_Back':
             return
@@ -157,7 +157,7 @@ class PgwCommandLineClient:
             messageClass = getattr(body, message_name)()
             messageClass.Init()
         else:
-            answer = prompt(Message_CallType_Question, style=style)
+            answer = prompt(Message_CallType_Question)#, style=style)
             call_type = answer['call_type']
             final_message['datas']['call_type'] = call_type
             messageClass = getattr(body, message_name)()
@@ -166,7 +166,7 @@ class PgwCommandLineClient:
         message_member = GetMessageMemberQuestion(messageClass)
         message_member.extend(GetConfirmQuestion('Is this for Send??'))
 
-        answer = prompt(message_member, style=style)
+        answer = prompt(message_member)#, style=style)
         for key, value in answer.items():
             if key == 'finallyOk':
                 if value is False:

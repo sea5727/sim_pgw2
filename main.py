@@ -79,7 +79,7 @@ def main():
         try:
             cmdlineClient.Run()
         except Exception:
-            print('Main Except..')
+            _, _, tb = sys.exc_info()  # tb -> traceback object
         finally:
             reactor.callFromThread(reactor.stop)
     else:
