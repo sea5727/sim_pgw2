@@ -2,6 +2,10 @@
 __pycache__
 .vscode
 *.log
+<<<<<<< HEAD
 *.log.*
 *.spec
 .gitignore
+=======
+build
+>>>>>>> 9f6059fa608bf2361b76d4706e7fd3b376bf1dbe
