@@ -22,6 +22,7 @@ class Config:
         self.manual_connect_ip = '127.0.0.1'
         self.manual_connect_port = '54321'
         self.manual_listen_ip = '0.0.0.0'
+        self.manual_my_ip = '127.0.0.1'
         self.manual_listen_port = '12345'
         self.manual_listen_ctl = '5959'
         self.manual_reconnect_interval = 1
@@ -76,6 +77,12 @@ class Config:
         if hasattr(self, 'manual_connect_port') and self.manual_connect_port is not None:
             return int(self.manual_connect_port)
         return int(self.config[self.section]['connect-port']) if self.config.has_option(self.section, 'connect-port') else 12345
+
+    @property
+    def my_ip(self):
+        if hasattr(self, 'manual_my_ip') and self.manual_my_ip is not None:
+            return self.manual_my_ip
+        return self.config[self.section]['my-ip'] if self.config.has_option(self.section, 'my-ip') else '127.0.0.1'
 
     @property
     def listen_ip(self):

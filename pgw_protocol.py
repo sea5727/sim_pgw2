@@ -8,6 +8,8 @@ from pgw2memory import pgw2Config as config
 from logger.pyLogger import pgw2logger as logger
 from pgw2memory import messageid_switcher
 from pgw2memory import pgw2CallManager
+from pgw2memory import pgw2RtpManager
+from rtp.Pgw2Rtp import RtpReceiver, RtpSender
 import struct
 import socket
 
@@ -62,13 +64,29 @@ class Pgw2Protocol(Protocol):
                 if type(msg) is messages.body._CALL_SETUP_REQ:
                     callid = pgw2CallManager.makeCallId()
                     pgw2CallManager.setCallId(callid, msg.s_call_id)
+
+                    remoteIp = socket.inet_ntoa(struct.pack('I', msg.media_ip))
+                    remotePort = msg.media_port
+                    recv_ip = '0.0.0.0'
+                    recv_port = pgw2RtpManager.makeRecvPort()
+
+                    rtpSender = RtpSender()
+                    rtpSender.InitGObjectRtp(remoteIp, remotePort)
+                    rtpReceiver = RtpReceiver()
+                    rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
+
+                    pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
+
+                    # rtpSender.StartRtp()
+                    # rtpReceiver.StartRtp()
+
                     res = messages.body._CALL_SETUP_RES()
                     res.Init(msg.call_type)
                     res.result = 0
                     res.s_call_id = callid
                     res.r_call_id = msg.s_call_id
-                    res.media_ip = socket.inet_aton('127.0.0.1')[0]
-                    res.media_port = 5555
+                    res.media_ip = socket.inet_aton(config.my_ip)[0]
+                    res.media_port = recv_port
                     proc.send_call_setup_res(self, res)
 
                 elif type(msg) is messages.body._MEDIA_ON_REQ:

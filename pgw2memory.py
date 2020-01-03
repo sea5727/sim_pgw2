@@ -1,6 +1,9 @@
 from define.pgw_define import _MESSAGE_ID, _CALL_TYPE
 from config.configure import Config
-from call.Manager import Manager
+from call.Manager import Manager as CallManager
+from rtp.Manager import Manager as RtpManager
+
+
 sessions = {
     'server': None,
     'client': None,
@@ -15,4 +18,5 @@ messageid_dict = {msg.name: msg.value for msg in _MESSAGE_ID}
 
 pgw2Config = Config()
 
-pgw2CallManager = Manager(1000)
+pgw2CallManager = CallManager(1000)
+pgw2RtpManager = RtpManager(10000)
