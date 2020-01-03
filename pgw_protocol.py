@@ -76,16 +76,16 @@ class Pgw2Protocol(Protocol):
                     rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
 
                     pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
-
-                    # rtpSender.StartRtp()
-                    # rtpReceiver.StartRtp()
+                    logger.info('RtpReceiver Ip:{0} Port:{1}, RtpSender Ip:{2}, Port:{3}'.format(recv_ip, recv_port, remoteIp, remotePort))
+                    rtpSender.StartRtp()
+                    rtpReceiver.StartRtp()
 
                     res = messages.body._CALL_SETUP_RES()
                     res.Init(msg.call_type)
                     res.result = 0
                     res.s_call_id = callid
                     res.r_call_id = msg.s_call_id
-                    res.media_ip = socket.inet_aton(config.my_ip)[0]
+                    res.media_ip = struct.unpack('I', socket.inet_aton(config.my_ip))[0]
                     res.media_port = recv_port
                     proc.send_call_setup_res(self, res)
 
