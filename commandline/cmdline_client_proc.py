@@ -134,7 +134,9 @@ class PgwCommandLineClient:
         answer = prompt(GetModeQuestion(Mode_Choices), style=style)
         selected_modes = answer['Mode_Question']
 
+
         for idx, value in enumerate(Mode_Choices):
+            Mode_Choices[idx]['checked'] = False
             for selected in selected_modes:
                 if value['name'] == selected:
                     Mode_Choices[idx]['checked'] = True

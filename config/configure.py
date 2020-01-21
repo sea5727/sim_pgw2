@@ -63,6 +63,10 @@ class Config:
     @property
     def background(self):
         if hasattr(self, 'manual_background') and self.manual_background is not None:
+            if self.manual_background == False:
+                self.manual_background = 'off'
+            elif self.manual_background == True:
+                self.manual_background = 'on'
             return self.manual_background
         return self.config[self.section]['background'] if self.config.has_option(self.section, 'background') else 'off'
 

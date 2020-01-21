@@ -14,6 +14,7 @@ from messages.body import (
     _BUNCH_INFO)
 from messages.message import _MESSAGE
 from define.pgw_define import _CALL_TYPE
+from pgw2memory import pgw2CallManager
 import socket
 import struct
 from logger.pyLogger import pgw2logger as logger
@@ -69,7 +70,6 @@ def send_call_setup_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, pri
         body.t_ssid = t_ssid
         body.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
         body.media_port = media_port
-
     send_message(session, body)
 
 

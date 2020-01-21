@@ -85,18 +85,6 @@ class RtpSender(GObjectRtp):
         ! autoaudiosink
         """
 
-        spec = """
-        filesrc location="PCMU_60sec.wav" 
-        ! decodebin 
-        ! audioconvert 
-        ! audioresample 
-        ! opus.sink \
-            opusenc name=opus \
-          opus.src \
-        ! rtpopuspay pt=96
-        ! queue 
-        ! udpsink host={0}  port={1}
-        """.format(host, port)
         # spec = """
         # filesrc location="PCMU_60sec.wav" 
         # ! decodebin 
@@ -104,11 +92,24 @@ class RtpSender(GObjectRtp):
         # ! audioresample 
         # ! audio/x-raw, rate=16000, channels=1, format=S16LE
         # ! opus.sink \
-        #     opusenc name=opus bitrate=20000 \
+        #     opusenc name=opus \
         #   opus.src \
-        # ! oggmux
-        # ! filesink location=opus_16000_1_20000.ogg
+        # ! rtpopuspay pt=96
+        # ! queue 
+        # ! udpsink host={0}  port={1}
         # """.format(host, port)
+        spec = """
+        filesrc location="PCMU_60sec.wav" 
+        ! decodebin 
+        ! audioconvert 
+        ! audioresample 
+        ! audio/x-raw, rate=16000, channels=1, format=S16LE
+        ! opus.sink \
+            opusenc name=opus \
+          opus.src \
+        ! oggmux
+        ! filesink location=test.ogg
+        """.format(host, port)
 
         self.pipeline = Gst.parse_launch(spec)
 

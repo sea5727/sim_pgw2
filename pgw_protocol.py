@@ -12,7 +12,7 @@ from pgw2memory import pgw2RtpManager
 from rtp.Pgw2Rtp import RtpReceiver, RtpSender
 import struct
 import socket
-
+from define.pgw_define import _CALL_TYPE
 
 class Pgw2Protocol(Protocol):
     count = 0
@@ -61,32 +61,40 @@ class Pgw2Protocol(Protocol):
                                         state=messages.body._GW_STATUS.ConnectedWithPTALKServer)
 
             if config.flag_automode == 'on':
-                if type(msg) is messages.body._CALL_SETUP_REQ:
+                if type(msg) is messages.body._CALL_SETUP_RES:
+                    pgw2CallManager.setCallId(msg.r_call_id, msg.s_call_id)
+                    
+                elif type(msg) is messages.body._CALL_SETUP_REQ:
                     callid = pgw2CallManager.makeCallId()
                     pgw2CallManager.setCallId(callid, msg.s_call_id)
 
-                    remoteIp = socket.inet_ntoa(struct.pack('I', msg.media_ip))
-                    remotePort = msg.media_port
-                    recv_ip = '0.0.0.0'
-                    recv_port = pgw2RtpManager.makeRecvPort()
+                    if msg.call_type != _CALL_TYPE._CT_ALERT.value:
+                        remoteIp = socket.inet_ntoa(struct.pack('I', msg.media_ip))
+                        remotePort = msg.media_port
+                        recv_ip = '0.0.0.0'
+                        recv_port = pgw2RtpManager.makeRecvPort()
 
-                    rtpSender = RtpSender()
-                    rtpSender.InitGObjectRtp(remoteIp, remotePort)
-                    rtpReceiver = RtpReceiver()
-                    rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
+                        if config.flag_rtp == 'on':
+                            rtpSender = RtpSender()
+                            rtpSender.InitGObjectRtp(remoteIp, remotePort)
+                            rtpReceiver = RtpReceiver()
+                            rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
 
-                    pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
-                    logger.info('RtpReceiver Ip:{0} Port:{1}, RtpSender Ip:{2}, Port:{3}'.format(recv_ip, recv_port, remoteIp, remotePort))
-                    rtpSender.StartRtp()
-                    rtpReceiver.StartRtp()
+                            pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
+                            logger.info('RtpReceiver Ip:{0} Port:{1}, RtpSender Ip:{2}, Port:{3}'.format(recv_ip, recv_port, remoteIp, remotePort))
+                            rtpSender.StartRtp()
+                            rtpReceiver.StartRtp()
 
                     res = messages.body._CALL_SETUP_RES()
                     res.Init(msg.call_type)
                     res.result = 0
                     res.s_call_id = callid
                     res.r_call_id = msg.s_call_id
-                    res.media_ip = struct.unpack('I', socket.inet_aton(config.my_ip))[0]
-                    res.media_port = recv_port
+                    if msg.call_type != _CALL_TYPE._CT_ALERT.value:
+                        res.media_ip = struct.unpack('I', socket.inet_aton(config.my_ip))[0]
+                        res.media_port = recv_port
+                    res.media_ip = 0
+                    res.media_port = 0
                     proc.send_call_setup_res(self, res)
 
                 elif type(msg) is messages.body._MEDIA_ON_REQ:

@@ -29,6 +29,49 @@ __all__ = [
 # ALERT : BBHIII
 # RPC : BBHIIIIHH
 
+ #= '!BBHIIIIHH'
+
+
+class BODY_FORMAT:
+    class CALL_SETUP_REQ_PRIVATE:
+        struct_fmt = '!BBHIIIIH'
+        struct_cnt = len(struct_fmt) - 1
+        message_names = [
+            'call_type',
+            'priority',
+            'reserve2',
+            's_call_id',
+            'o_ssid',
+            't_ssid',
+            'media_ip',
+            'media_port',
+        ]
+    class CALL_SETUP_REQ_GROUP:
+        struct_fmt = '!BBHIIIIH'
+        struct_cnt = len(struct_fmt) - 1
+        message_names = [
+            'call_type',
+            'priority',
+            'reserved2',
+            's_call_id',
+            'o_ssid',
+            'bunch_group',
+            'media_ip',
+            'media_port',
+        ]
+    class CALL_SETUP_REQ_EMER:
+        struct_fmt = '!BBHIIIIH'
+        struct_cnt = len(struct_fmt) - 1
+        message_names = [
+            'call_type',
+            'priority',
+            'reserve2',
+            's_call_id',
+            'o_ssid',
+            'bunch_group',
+            'media_ip',
+            'media_port',
+        ]
 
 class _GW_STATUS(ISerializable):
     """
@@ -128,61 +171,36 @@ class _CALL_SETUP_REQ(ISerializable):
         This is inner class of _CALL_SETUP_REQ class for message structure
         """
         def init(self, buf=None):
-            self.struct_fmt = '!BBHIIIIH'
+            body = BODY_FORMAT.CALL_SETUP_REQ_PRIVATE
+            self.struct_fmt = body.struct_fmt
+            self.struct_cnt = body.struct_cnt
             self.struct_len = struct.calcsize(self.struct_fmt)
             if buf is None:
-                self.datas = [0] * 8
+                self.datas = [0] * self.struct_cnt
             else:
                 self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
 
         def set_msg(self, datas):
             self.call_type = _CALL_TYPE._CT_PRIVATE.value
-            self.priority = datas[1]
-            self.reserve2 = datas[2]
-            self.s_call_id = datas[3]
-            self.o_ssid = datas[4]
-            self.t_ssid = datas[5]
-            self.media_ip = datas[6]
-            self.media_port = datas[7]
-            self.message_names = [
-                'call_type',
-                'priority',
-                's_call_id',
-                'o_ssid',
-                't_ssid',
-                'media_ip',
-                'media_port'
-            ]
+            body = BODY_FORMAT.CALL_SETUP_REQ_PRIVATE
+            self.message_names = body.message_names
+            for idx, msg in enumerate(body.message_names):
+                if msg == 'call_type': continue
+                setattr(self, msg, datas[idx])
 
+            
         def StringDump(self):
             dump = ''
             dump += '[{0}]  '.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]  '.format(self.call_type)
-            dump += 'priority : [{0}]  '.format(self.priority)
-            dump += 'reserve2 : [{0}]  '.format(self.reserve2)
-            dump += 's_call_id : [{0}]  '.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]  '.format(self.o_ssid)
-            dump += 't_ssid : [{0}]  '.format(self.t_ssid)
-            dump += 'media_ip : [{0}]  '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]  '.format(self.media_port)
+            for msg in self.message_names:
+                dump += '{0} : [{1}] '.format(msg, getattr(self, msg))
             return dump
 
         def PrintDump(self):
             print(self.StringDump())
 
         def GetBytes(self):
-            return struct.pack(
-                self.struct_fmt,
-                *(
-                    self.call_type,
-                    self.priority,
-                    self.reserve2,
-                    self.s_call_id,
-                    self.o_ssid,
-                    self.t_ssid,
-                    self.media_ip,
-                    self.media_port,
-                ))
+            return struct.pack(self.struct_fmt, *[getattr(self, msg) for msg in self.message_names])
 
         def GetSize(self):
             return self.struct_len
@@ -192,61 +210,35 @@ class _CALL_SETUP_REQ(ISerializable):
         This is inner class of _CALL_SETUP_REQ class for message structure
         """
         def init(self, buf=None):
-            self.struct_fmt = '!BBHIIIIH'
+            body = BODY_FORMAT.CALL_SETUP_REQ_GROUP
+            self.struct_fmt = body.struct_fmt
+            self.struct_cnt = body.struct_cnt
             self.struct_len = struct.calcsize(self.struct_fmt)
             if buf is None:
-                self.datas = [0] * 8
+                self.datas = [0] * self.struct_cnt
             else:
                 self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
 
         def set_msg(self, datas):
             self.call_type = _CALL_TYPE._CT_GROUP.value
-            self.priority = datas[1]
-            self.reserve2 = datas[2]
-            self.s_call_id = datas[3]
-            self.o_ssid = datas[4]
-            self.bunch_group = datas[5]
-            self.media_ip = datas[6]
-            self.media_port = datas[7]
-            self.message_names = [
-                'call_type',
-                'priority',
-                's_call_id',
-                'o_ssid',
-                'bunch_group',
-                'media_ip',
-                'media_port'
-            ]
-
+            body = BODY_FORMAT.CALL_SETUP_REQ_GROUP
+            self.message_names = body.message_names
+            for idx, msg in enumerate(body.message_names):
+                if msg == 'call_type': continue
+                setattr(self, msg, datas[idx])
+            
         def StringDump(self):
             dump = ''
             dump += '[{0}]  '.format(self.__class__.__name__)
-            dump += 'call_type : [{0}]  '.format(self.call_type)
-            dump += 'priority : [{0}]  '.format(self.priority)
-            dump += 'reserve2 : [{0}]  '.format(self.reserve2)
-            dump += 's_call_id : [{0}]  '.format(self.s_call_id)
-            dump += 'o_ssid : [{0}]  '.format(self.o_ssid)
-            dump += 'bunch_group : [{0}]  '.format(self.bunch_group)
-            dump += 'media_ip : [{0}]  '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}]  '.format(self.media_port)
+            for msg in self.message_names:
+                dump += '{0} : [{1}] '.format(msg, getattr(self, msg))
             return dump
 
         def PrintDump(self):
             print(self.StringDump())
 
         def GetBytes(self):
-            return struct.pack(
-                self.struct_fmt,
-                *(
-                    self.call_type,
-                    self.priority,
-                    self.reserve2,
-                    self.s_call_id,
-                    self.o_ssid,
-                    self.bunch_group,
-                    self.media_ip,
-                    self.media_port,
-                ))
+            return struct.pack(self.struct_fmt, *[getattr(self, msg) for msg in self.message_names])
 
         def GetSize(self):
             return self.struct_len
@@ -256,61 +248,35 @@ class _CALL_SETUP_REQ(ISerializable):
         This is inner class of _CALL_SETUP_REQ class for message structure
         """
         def init(self, buf=None):
-            self.struct_fmt = '!BBHIIIIH'
+            body = BODY_FORMAT.CALL_SETUP_REQ_EMER
+            self.struct_fmt = body.struct_fmt
+            self.struct_cnt = body.struct_cnt
             self.struct_len = struct.calcsize(self.struct_fmt)
             if buf is None:
-                self.datas = [0] * 8
+                self.datas = [0] * self.struct_cnt
             else:
                 self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
 
         def set_msg(self, datas):
-            self.call_type = _CALL_TYPE._CT_EMER.value
-            self.priority = datas[1]
-            self.reserve2 = datas[2]
-            self.s_call_id = datas[3]
-            self.o_ssid = datas[4]
-            self.bunch_group = datas[5]
-            self.media_ip = datas[6]
-            self.media_port = datas[7]
-            self.message_names = [
-                'call_type',
-                'priority',
-                's_call_id',
-                'o_ssid',
-                'bunch_group',
-                'media_ip',
-                'media_port'
-            ]
+            self.call_type = _CALL_TYPE._CT_GROUP.value
+            body = BODY_FORMAT.CALL_SETUP_REQ_GROUP
+            self.message_names = body.message_names
+            for idx, msg in enumerate(body.message_names):
+                if msg == 'call_type': continue
+                setattr(self, msg, datas[idx])
 
         def StringDump(self):
             dump = ''
-            dump += '[{0}] '.format(self.__class__.__name__)
-            dump += 'call_type : [{0}] '.format(self.call_type)
-            dump += 'priority : [{0}] '.format(self.priority)
-            dump += 'reserve2 : [{0}] '.format(self.reserve2)
-            dump += 's_call_id : [{0}] '.format(self.s_call_id)
-            dump += 'o_ssid : [{0}] '.format(self.o_ssid)
-            dump += 'bunch_group : [{0}] '.format(self.bunch_group)
-            dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
-            dump += 'media_port : [{0}] '.format(self.media_port)
+            dump += '[{0}]  '.format(self.__class__.__name__)
+            for msg in self.message_names:
+                dump += '{0} : [{1}] '.format(msg, getattr(self, msg))
             return dump
 
         def PrintDump(self):
             print(self.StringDump())
 
         def GetBytes(self):
-            return struct.pack(
-                self.struct_fmt,
-                *(
-                    self.call_type,
-                    self.priority,
-                    self.reserve2,
-                    self.s_call_id,
-                    self.o_ssid,
-                    self.bunch_group,
-                    self.media_ip,
-                    self.media_port,
-                ))
+            return struct.pack(self.struct_fmt, *[getattr(self, msg) for msg in self.message_names])
 
         def GetSize(self):
             return self.struct_len
@@ -358,6 +324,7 @@ class _CALL_SETUP_REQ(ISerializable):
                 'media_port',
                 'mem_cnt',
                 'mem_list',
+                
             ]
 
         def StringDump(self):
@@ -785,7 +752,7 @@ class _MEDIA_ON_RES(ISerializable):
     def __init__(self, buf=None):
         if buf is None:
             return
-        self.struct_fmt = '!BBHII'
+        self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
         self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
         self.set_msg(self.datas)
@@ -795,9 +762,9 @@ class _MEDIA_ON_RES(ISerializable):
             calltype = _CALL_TYPE._CT_PRIVATE.value
         if type(calltype) is _CALL_TYPE:
             calltype = calltype.value
-        self.struct_fmt = '!BBHII'
+        self.struct_fmt = '!BBHI'
         self.struct_len = struct.calcsize(self.struct_fmt)
-        self.datas = [0] * 5
+        self.datas = [0] * 4
         self.set_msg([calltype] + self.datas)
         return self
 
@@ -806,12 +773,10 @@ class _MEDIA_ON_RES(ISerializable):
         self.result = datas[1]
         self.reserve2 = datas[2]
         self.r_call_id = datas[3]
-        self.o_ssid = datas[4]
         self.message_names = [
             'call_type',
             'result',
             'r_call_id',
-            'o_ssid',
         ]
 
     def StringDump(self):
@@ -821,7 +786,6 @@ class _MEDIA_ON_RES(ISerializable):
         dump += 'result : [{0}] '.format(self.result)
         dump += 'reserve2 : [{0}] '.format(self.reserve2)
         dump += 'r_call_id : [{0}] '.format(self.r_call_id)
-        dump += 'o_ssid : [{0}] '.format(self.o_ssid)
         return dump
 
     def PrintDump(self):
@@ -835,7 +799,6 @@ class _MEDIA_ON_RES(ISerializable):
                 self.result,
                 self.reserve2,
                 self.r_call_id,
-                self.o_ssid,
             ))
 
     def GetSize(self):
@@ -1549,11 +1512,11 @@ def make_call_setup_req():
 
     for calltype in _CALL_TYPE:
         if calltype is _CALL_TYPE._CT_PRIVATE:
-            buf = get_buffer_call_setup_req_private()
+            buf = get_buffer_call_setup_req(_CALL_TYPE._CT_PRIVATE, BODY_FORMAT.CALL_SETUP_REQ_PRIVATE)
         if calltype is _CALL_TYPE._CT_GROUP:
-            buf = get_buffer_call_setup_req_group()
+            buf = get_buffer_call_setup_req(_CALL_TYPE._CT_GROUP, BODY_FORMAT.CALL_SETUP_REQ_GROUP)
         if calltype is _CALL_TYPE._CT_EMER:
-            buf = get_buffer_call_setup_req_emer()
+            buf = get_buffer_call_setup_req(_CALL_TYPE._CT_EMER, BODY_FORMAT.CALL_SETUP_REQ_EMER)
         if calltype is _CALL_TYPE._CT_UDG:
             buf = get_buffer_call_setup_req_udg()
         if calltype is _CALL_TYPE._CT_ALERT:
@@ -1687,70 +1650,58 @@ def get_buffer_call_setup_res_rpc(calltype):
     ))
     return buf
 
+def get_buffer_call_setup_req(calltype, body):
+    fmt = body.struct_fmt
+    datas = []
+    for idx, msg in enumerate(body.message_names):
+        if msg == 'call_type' : 
+            datas.append(calltype.value)
+            continue
+        datas.append(idx)
+    
+    buf = struct.pack(fmt, *datas)
+    return buf
 
-def get_buffer_call_setup_req_private():
-    call_type = _CALL_TYPE._CT_PRIVATE.value
-    priority = 2
-    reserve2 = 3
-    s_call_id = 4
-    o_ssid = 5
-    t_ssid = 6
-    media_ip = 7
-    media_port = 8
-    buf = struct.pack("!BBHIIIIH", *(
-        call_type,
-        priority,
-        reserve2,
-        s_call_id,
-        o_ssid,
-        t_ssid,
-        media_ip,
-        media_port
-    ))
+def get_buffer_call_setup_req_private(calltype, body):
+    
+    body = BODY_FORMAT.CALL_SETUP_REQ_PRIVATE
+    fmt = body.struct_fmt
+    datas = []
+    for idx, msg in enumerate(body.message_names):
+        if msg == 'call_type' : 
+            datas.append(calltype.value)
+            continue
+        datas.append(idx)
+    
+    buf = struct.pack(fmt, *datas)
     return buf
 
 
 def get_buffer_call_setup_req_group():
-    call_type = _CALL_TYPE._CT_GROUP.value
-    priority = 2
-    reserve2 = 3
-    s_call_id = 4
-    bunch_group = 5
-    t_ssid = 6
-    media_ip = 7
-    media_port = 8
-    buf = struct.pack("!BBHIIIIH", *(
-        call_type,
-        priority,
-        reserve2,
-        s_call_id,
-        bunch_group,
-        t_ssid,
-        media_ip,
-        media_port
-    ))
+    body = BODY_FORMAT.CALL_SETUP_REQ_GROUP
+    fmt = body.struct_fmt
+    datas = []
+    for idx, msg in enumerate(body.message_names):
+        if msg == 'call_type' : 
+            datas.append(_CALL_TYPE._CT_PRIVATE.value)
+            continue
+        datas.append(idx)
+    
+    buf = struct.pack(fmt, *datas)
     return buf
 
 
 def get_buffer_call_setup_req_emer():
-    call_type = _CALL_TYPE._CT_EMER.value
-    priority = 2
-    reserve2 = 3
-    s_call_id = 4
-    bunch_group = 5
-    t_ssid = 6
-    media_ip = 7
-    media_port = 8
-    buf = struct.pack("!BBHIIIIH", *(
-        call_type,
-        priority,
-        reserve2,
-        s_call_id,
-        bunch_group,
-        t_ssid,
-        media_ip,
-        media_port
-    ))
+    body = BODY_FORMAT.CALL_SETUP_REQ_EMER
+    fmt = body.struct_fmt
+    datas = []
+    for idx, msg in enumerate(body.message_names):
+        if msg == 'call_type' : 
+            datas.append(_CALL_TYPE._CT_PRIVATE.value)
+            continue
+        datas.append(idx)
+    
+    buf = struct.pack(fmt, *datas)
     return buf
 
 
@@ -1814,6 +1765,7 @@ def get_buffer_call_setup_req_rpc():
 
 
 def main():
+    make_call_setup_req()
     make_media_on_off_noti()
 
 
