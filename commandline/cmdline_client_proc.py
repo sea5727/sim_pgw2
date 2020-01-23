@@ -5,7 +5,9 @@ from commandline.cmdline_client_format import Main_Question, Send_Message_Questi
 from commandline.cmdline_client_format import Message_CallType_Question, GetModeQuestion
 from commandline.cmdline_client_format import style
 from commandline.cmdline_client_format import GetMessageMemberQuestion
+from commandline.cmdline_client_format import GetMemListQuestion
 from commandline.cmdline_client_format import GetConfirmQuestion
+from logger.pyLogger import pgw2logger as logger
 from messages import body
 import os
 import asyncio
@@ -51,6 +53,7 @@ class PgwCommandLineClient:
                         return
                     final_message['request'] = 'Send_Message'
                     write_data = json.dumps(final_message).replace(' ', '')
+                    logger.debug("[Cmdline->Server]{0}".format(write_data))
                     self.WriteCoroutine(write_data.encode())
                 elif question_selected == 'Mode':
                     if final_message is None:
@@ -166,19 +169,27 @@ class PgwCommandLineClient:
             messageClass.Init(calltype_dict[call_type])
 
         message_member = GetMessageMemberQuestion(messageClass)
-        message_member.extend(GetConfirmQuestion('Is this for Send??'))
-
         answer = prompt(message_member, style=style)
+        member_list_answer = None
+        if hasattr(messageClass, 'mem_cnt'):
+            member_list_question = GetMemListQuestion(int(answer['mem_cnt']))
+            member_list_answer = prompt(member_list_question, style=style)
+
+        final = prompt(GetConfirmQuestion('Is this for Send??'), style=style)
+
+
         for key, value in answer.items():
-            if key == 'finallyOk':
-                if value is False:
-                    return None
-                break
             if key == 'media_ip':
                 final_message['datas'][key] = struct.unpack('I', socket.inet_aton(value))[0]
             else:
                 final_message['datas'][key] = int(value)
-
+        if member_list_answer is not None:
+            final_message['datas']['mem_list'] = [ value for key, value in member_list_answer.items()]
+        for key, value in final.items():
+            if key == 'finallyOk':
+                if value is False:
+                    return None
+                break
         return final_message
 
 

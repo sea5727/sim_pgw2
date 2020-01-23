@@ -258,7 +258,7 @@ class _CALL_SETUP_REQ(ISerializable):
                 self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
 
         def set_msg(self, datas):
-            self.call_type = _CALL_TYPE._CT_GROUP.value
+            self.call_type = _CALL_TYPE._CT_EMER.value
             body = BODY_FORMAT.CALL_SETUP_REQ_GROUP
             self.message_names = body.message_names
             for idx, msg in enumerate(body.message_names):
@@ -319,12 +319,10 @@ class _CALL_SETUP_REQ(ISerializable):
                 'priority',
                 's_call_id',
                 'o_ssid',
-                'bunch_group',
                 'media_ip',
                 'media_port',
                 'mem_cnt',
                 'mem_list',
-                
             ]
 
         def StringDump(self):

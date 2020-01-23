@@ -90,11 +90,12 @@ class Pgw2Protocol(Protocol):
                     res.result = 0
                     res.s_call_id = callid
                     res.r_call_id = msg.s_call_id
+                    res.media_ip = 0
+                    res.media_port = 0
                     if msg.call_type != _CALL_TYPE._CT_ALERT.value:
                         res.media_ip = struct.unpack('I', socket.inet_aton(config.my_ip))[0]
                         res.media_port = recv_port
-                    res.media_ip = 0
-                    res.media_port = 0
+                        
                     proc.send_call_setup_res(self, res)
 
                 elif type(msg) is messages.body._MEDIA_ON_REQ:

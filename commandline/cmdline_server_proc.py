@@ -4,6 +4,7 @@ from messages import body
 from pgw2memory import calltype_dict, pgw2Config as config
 from pgw2memory import sessions
 from protocol import proc
+from logger.pyLogger import pgw2logger as logger
 
 
 class PgwCommandLineServerFactory(protocol.Factory):
@@ -19,7 +20,8 @@ class PgwCommandLineServer(protocol.Protocol):
     def dataReceived(self, data):
         if not data:
             return
-        str_data = data.decode()
+        str_data = data.decode("utf-8")
+        logger.debug(str_data)
         obj_data = json.loads(str_data)
 
         if 'request' not in obj_data:

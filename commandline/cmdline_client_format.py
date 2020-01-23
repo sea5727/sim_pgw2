@@ -76,9 +76,24 @@ def GetMessageMemberQuestion(messageClass):
             'default': '',
             # asyncio 를 사용하려면 filter가 없어야함.
             # 'filter': (lambda value: int(value)) if name != 'media_ip' else (lambda ip: struct.unpack('I', socket.inet_aton(ip))[0])
-        } for name in messageClass.message_names if name != 'call_type'
+        } for name in messageClass.message_names if name != 'call_type' and name != 'mem_list'
     ]
     return Message_Member_Question
+
+def GetMemListQuestion(memberCount):
+    Message_Member_Question = [
+        {
+            'type': 'input',
+            'name': 'member_{0}'.format(index),
+            'message': 'input {0}member'.format(index),
+            'validate':  NumberValidator,
+            'default': '',
+            # asyncio 를 사용하려면 filter가 없어야함.
+            # 'filter': (lambda value: int(value)) if name != 'media_ip' else (lambda ip: struct.unpack('I', socket.inet_aton(ip))[0])
+        } for index in range(memberCount)
+    ]
+    return Message_Member_Question
+
 
 
 def GetConfirmQuestion(message):

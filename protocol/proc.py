@@ -19,6 +19,7 @@ import socket
 import struct
 from logger.pyLogger import pgw2logger as logger
 
+
 __all__ = [
     'send_gw_status',
     'send_call_setup_req',
@@ -70,6 +71,9 @@ def send_call_setup_req(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, pri
         body.t_ssid = t_ssid
         body.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
         body.media_port = media_port
+    if body.s_call_id == -1:
+        callid = pgw2CallManager.makeCallId()
+        body.s_call_id = callid
     send_message(session, body)
 
 
