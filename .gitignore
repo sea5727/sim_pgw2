@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-*.log.*
-*.log
-*.wav
-*.ogg
-git
-build
-__pycache__
-=======
 .env
 __pycache__
 .vscode
@@ -15,4 +6,3 @@ __pycache__
 *.spec
 .gitignore
 build
->>>>>>> ee35aef1f7ce100641f18c8f4cc72c928439bed1

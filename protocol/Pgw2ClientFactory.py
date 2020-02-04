@@ -11,10 +11,7 @@ class Pgw2ClientFactory(protocol.ReconnectingClientFactory):
 
     def buildProtocol(self, addr):
         self.resetDelay()
-<<<<<<< HEAD
         logger.debug('Pgw2ClientFactory : buildProtocol... addr: host({0}), port({1}), type({2})'.format( addr.host, addr.port, addr.type))
-=======
->>>>>>> ee35aef1f7ce100641f18c8f4cc72c928439bed1
         sessions['client'] = Pgw2ClientFactory.protocol
         return Pgw2ClientFactory.protocol
 

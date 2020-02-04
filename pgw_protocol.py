@@ -76,16 +76,10 @@ class Pgw2Protocol(Protocol):
 
                         if config.flag_rtp == 'on':
                             rtpSender = RtpSender()
-<<<<<<< HEAD
                             rtpSender.SetLocalPort(recv_port)
                             rtpSender.InitGObjectRtp(remoteIp, remotePort)
                             rtpReceiver = RtpReceiver()
                             # rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
-=======
-                            rtpSender.InitGObjectRtp(remoteIp, remotePort)
-                            rtpReceiver = RtpReceiver()
-                            rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
->>>>>>> ee35aef1f7ce100641f18c8f4cc72c928439bed1
 
                             pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
                             logger.info('RtpReceiver Ip:{0} Port:{1}, RtpSender Ip:{2}, Port:{3}'.format(recv_ip, recv_port, remoteIp, remotePort))
@@ -123,7 +117,6 @@ class Pgw2Protocol(Protocol):
                                             result=0,
                                             reserve2=0,
                                             r_call_id=callid)
-<<<<<<< HEAD
                 elif type(msg) is messages.body._CALL_LEAVE_REQ:
                     callid = pgw2CallManager.getCallId(msg.r_call_id)
                     if callid is None:
@@ -134,7 +127,5 @@ class Pgw2Protocol(Protocol):
                                             reserve2=0,
                                             r_call_id=callid)
                         
-=======
->>>>>>> ee35aef1f7ce100641f18c8f4cc72c928439bed1
 
             data = data[h.GetSize() + h.length:]
