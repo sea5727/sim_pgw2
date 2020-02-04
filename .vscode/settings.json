@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/home/ysh8361/.pyenv/versions/sim_pgw2/bin/python",
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": false
+}

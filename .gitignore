@@ -1,0 +1,7 @@
+*.log.*
+*.log
+*.wav
+*.ogg
+git
+build
+__pycache__
