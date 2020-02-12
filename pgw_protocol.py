@@ -89,8 +89,8 @@ class Pgw2Protocol(Protocol):
                     res = messages.body._CALL_SETUP_RES()
                     res.Init(msg.call_type)
                     res.result = 0
-                    res.s_call_id = callid
                     res.r_call_id = msg.s_call_id
+                    res.s_call_id = callid
                     res.media_ip = 0
                     res.media_port = 0
                     if msg.call_type != _CALL_TYPE._CT_ALERT.value:

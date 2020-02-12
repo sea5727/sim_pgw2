@@ -34,7 +34,7 @@ __all__ = [
 
 class BODY_FORMAT:
     class CALL_SETUP_REQ_PRIVATE:
-        struct_fmt = '!BBHIIIIH'
+        struct_fmt = '!BBHIIIIIH'
         struct_cnt = len(struct_fmt) - 1
         message_names = [
             'call_type',
@@ -43,6 +43,7 @@ class BODY_FORMAT:
             's_call_id',
             'o_ssid',
             't_ssid',
+            'o_bunch',
             'media_ip',
             'media_port',
         ]
@@ -72,6 +73,7 @@ class BODY_FORMAT:
             'media_ip',
             'media_port',
         ]
+
 
 class _GW_STATUS(ISerializable):
     """
@@ -286,14 +288,14 @@ class _CALL_SETUP_REQ(ISerializable):
         This is inner class of _CALL_SETUP_REQ class for message structure
         """
         def init(self, buf=None):
-            self.struct_fmt = '!BBHIIIHH'
+            self.struct_fmt = '!BBHIIIIHH'
             self.struct_len = struct.calcsize(self.struct_fmt)
             if buf is None:
-                self.datas = [0] * 8
+                self.datas = [0] * 9
                 self.datas.append([])
             else:
                 self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
-                member_count = self.datas[7]
+                member_count = self.datas[8]
                 if member_count > 0:
                     fmt = str.format('{0}I', member_count)
                     fmt_size = struct.calcsize(fmt)
@@ -310,15 +312,17 @@ class _CALL_SETUP_REQ(ISerializable):
             self.reserve2 = datas[2]
             self.s_call_id = datas[3]
             self.o_ssid = datas[4]
-            self.media_ip = datas[5]
-            self.media_port = datas[6]
-            self.mem_cnt = datas[7]
-            self.mem_list = datas[8]
+            self.o_bunch = datas[5]
+            self.media_ip = datas[6]
+            self.media_port = datas[7]
+            self.mem_cnt = datas[8]
+            self.mem_list = datas[9]
             self.message_names = [
                 'call_type',
                 'priority',
                 's_call_id',
                 'o_ssid',
+                'o_bunch',
                 'media_ip',
                 'media_port',
                 'mem_cnt',
@@ -333,6 +337,7 @@ class _CALL_SETUP_REQ(ISerializable):
             dump += 'reserve2 : [{0}] '.format(self.reserve2)
             dump += 's_call_id : [{0}] '.format(self.s_call_id)
             dump += 'o_ssid : [{0}] '.format(self.o_ssid)
+            dump += 'o_bunch : [{0}] '.format(self.o_bunch)
             dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
             dump += 'media_port : [{0}] '.format(self.media_port)
             dump += 'mem_cnt : [{0}] '.format(self.mem_cnt)
@@ -344,7 +349,7 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def GetBytes(self):
             if self.mem_cnt > 0:
-                self.struct_fmt = str.format('!BBHIIIHH{0}I', self.mem_cnt)
+                self.struct_fmt = str.format('!BBHIIIIHH{0}I', self.mem_cnt)
             return struct.pack(
                 self.struct_fmt,
                 *(
@@ -353,6 +358,7 @@ class _CALL_SETUP_REQ(ISerializable):
                     self.reserve2,
                     self.s_call_id,
                     self.o_ssid,
+                    self.o_bunch,
                     self.media_ip,
                     self.media_port,
                     self.mem_cnt,
@@ -361,7 +367,7 @@ class _CALL_SETUP_REQ(ISerializable):
 
         def GetSize(self):
             if self.mem_cnt > 0:
-                self.struct_fmt = str.format('!BBHIIIHH{0}I', self.mem_cnt)
+                self.struct_fmt = str.format('!BBHIIIIHH{0}I', self.mem_cnt)
             self.struct_len = struct.calcsize(self.struct_fmt)
             return self.struct_len
 
@@ -370,10 +376,10 @@ class _CALL_SETUP_REQ(ISerializable):
         This is inner class of _CALL_SETUP_REQ class for message structure
         """
         def init(self, buf=None):
-            self.struct_fmt = '!BBHIII'
+            self.struct_fmt = '!BBHIIII'
             self.struct_len = struct.calcsize(self.struct_fmt)
             if buf is None:
-                self.datas = [0] * 6
+                self.datas = [0] * 7
             else:
                 self.datas = list(struct.unpack(self.struct_fmt, buf[0:self.struct_len]))
 
@@ -384,11 +390,13 @@ class _CALL_SETUP_REQ(ISerializable):
             self.s_call_id = datas[3]
             self.o_ssid = datas[4]
             self.t_ssid = datas[5]
+            self.o_bunch = datas[6]
             self.message_names = [
                 'call_type',
                 's_call_id',
                 'o_ssid',
                 't_ssid',
+                'o_bunch',
             ]
 
         def StringDump(self):
@@ -400,6 +408,7 @@ class _CALL_SETUP_REQ(ISerializable):
             dump += 's_call_id : [{0}] '.format(self.s_call_id)
             dump += 'o_ssid : [{0}] '.format(self.o_ssid)
             dump += 't_ssid : [{0}] '.format(self.t_ssid)
+            dump += 'o_bunch : [{0}] '.format(self.o_bunch)
             return dump
 
         def PrintDump(self):
@@ -415,6 +424,7 @@ class _CALL_SETUP_REQ(ISerializable):
                     self.s_call_id,
                     self.o_ssid,
                     self.t_ssid,
+                    self.o_bunch,
                 ))
 
         def GetSize(self):
@@ -545,15 +555,15 @@ class _CALL_SETUP_RES(ISerializable):
             # self.call_type = datas[0]
             self.result = datas[1]
             self.reserve2 = datas[2]
-            self.s_call_id = datas[3]
-            self.r_call_id = datas[4]
+            self.r_call_id = datas[3]
+            self.s_call_id = datas[4]
             self.media_ip = datas[5]
             self.media_port = datas[6]
             self.message_names = [
                 'call_type',
                 'result',
-                's_call_id',
                 'r_call_id',
+                's_call_id',
                 'media_ip',
                 'media_port',
             ]
@@ -564,8 +574,8 @@ class _CALL_SETUP_RES(ISerializable):
             dump += 'call_type : [{0}] '.format(self.call_type)
             dump += 'result : [{0}] '.format(self.result)
             dump += 'reserve2 : [{0}] '.format(self.reserve2)
-            dump += 's_call_id : [{0}] '.format(self.s_call_id)
             dump += 'r_call_id : [{0}] '.format(self.r_call_id)
+            dump += 's_call_id : [{0}] '.format(self.s_call_id)
             dump += 'media_ip : [{0}] '.format(socket.inet_ntoa(struct.pack('I', self.media_ip)))
             dump += 'media_port : [{0}] '.format(self.media_port)
             return dump
@@ -580,8 +590,8 @@ class _CALL_SETUP_RES(ISerializable):
                     self.call_type,
                     self.result,
                     self.reserve2,
-                    self.s_call_id,
                     self.r_call_id,
+                    self.s_call_id,
                     self.media_ip,
                     self.media_port,
                 ))
@@ -630,16 +640,17 @@ class _CALL_SETUP_RES(ISerializable):
             self.call_type = _CALL_TYPE._CT_RPC.value
             self.result = datas[1]
             self.reserve2 = datas[2]
-            self.s_call_id = datas[3]
-            self.r_call_id = datas[4]
+            self.r_call_id = datas[3]
+            self.s_call_id = datas[4]
+            
             self.media_ip = datas[5]
             self.media_port = datas[6]
             self.v_rate = datas[7]
             self.message_names = [
                 'call_type',
                 'result',
-                's_call_id',
                 'r_call_id',
+                's_call_id',
                 'media_ip',
                 'media_port',
                 'v_rate',
@@ -1419,16 +1430,16 @@ def test_call_setup_res_1():
     call_type = _CALL_TYPE._CT_PRIVATE.value
     result = 2
     reserve2 = 3
-    s_call_id = 4
-    r_call_id = 5
+    r_call_id = 4
+    s_call_id = 5
     media_ip = 6
     media_port = 7
     buf = struct.pack("!BBHIIIH", *(
         call_type,
         result,
         reserve2,
-        s_call_id,
         r_call_id,
+        s_call_id,
         media_ip,
         media_port
     ))
@@ -1441,8 +1452,8 @@ def test_call_setup_res_2():
     call_type = _CALL_TYPE._CT_RPC.value
     result = 2
     reserve2 = 3
-    s_call_id = 4
-    r_call_id = 5
+    r_call_id = 4
+    s_call_id = 5    
     media_ip = 6
     media_port = 7
     v_rate = 8

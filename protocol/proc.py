@@ -46,7 +46,7 @@ def send_message(session, body):
     msg = _MESSAGE(body)
     logger.debug('SEND > {0} : {1}, len:{2}'.format(msg.header.gw_msgid, msg.GetBytes(), msg.GetSize()))
     logger.info('SEND > ' + msg.body.StringDump())
-    session.transport.write(msg.GetBytes())
+    ret = session.transport.write(msg.GetBytes())
 
 
 def send_gw_status(session, body=None, cmd=1, state=1):
@@ -83,8 +83,8 @@ def send_call_setup_res(session, body=None, calltype=_CALL_TYPE._CT_PRIVATE, res
         body.Init(calltype)
         body.result = result
         body.reserve2 = reserve2
-        body.s_call_id = s_call_id
         body.r_call_id = r_call_id
+        body.s_call_id = s_call_id
         body.media_ip = struct.unpack('=I', socket.inet_aton(media_ip))[0]
         body.media_port = media_port
 

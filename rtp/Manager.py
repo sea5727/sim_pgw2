@@ -1,12 +1,13 @@
 class Manager:
     Rtps = {}
-
-    def __init__(self, init_recv_port=10000):
+    init_port = 10000
+    def __init__(self, init_recv_port=init_port):
         self.recv_port = init_recv_port
-
     def makeRecvPort(self):
         recv_port = self.recv_port
         self.recv_port += 1
+        if self.recv_port > 65000:
+            self.recv_port = Manager.init_port
         return recv_port
 
     def getRtp(self, key):

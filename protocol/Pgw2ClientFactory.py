@@ -11,14 +11,14 @@ class Pgw2ClientFactory(protocol.ReconnectingClientFactory):
 
     def buildProtocol(self, addr):
         self.resetDelay()
-        logger.debug('Pgw2ClientFactory : buildProtocol... addr: host({0}), port({1}), type({2})'.format( addr.host, addr.port, addr.type))
+        logger.info('Pgw2ClientFactory : buildProtocol... addr: host({0}), port({1}), type({2})'.format( addr.host, addr.port, addr.type))
         sessions['client'] = Pgw2ClientFactory.protocol
         return Pgw2ClientFactory.protocol
 
     def clientConnectionFailed(self, connector, reason):
         # reactor.callLater(0.5, self.TryReconnect, connector)
         self.maxDelay = config.reconnect_interval
-        logger.debug('connection failed {0}:{1}, state:{2}, tryCount:{3}, delay:{4}'.format(
+        logger.info('connection failed {0}:{1}, state:{2}, tryCount:{3}, delay:{4}'.format(
             connector.host,
             connector.port,
             connector.state,
