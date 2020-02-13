@@ -9,7 +9,8 @@ from logger.pyLogger import pgw2logger as logger
 from pgw2memory import messageid_switcher
 from pgw2memory import pgw2CallManager
 from pgw2memory import pgw2RtpManager
-from rtp.Pgw2Rtp import RtpReceiver, RtpSender
+from rtp.Pgw2Rtp import RtpReceiver, RtpSender, RtpProxy
+from pgw2memory import pgw2RtpInterceptManager as InterceptManager
 import struct
 import socket
 from define.pgw_define import _CALL_TYPE
@@ -54,6 +55,7 @@ class Pgw2Protocol(Protocol):
                 callid = pgw2CallManager.getCallId(msg.r_call_id)
                 if callid is not None:
                     pgw2CallManager.setCallId(callid, msg.s_call_id)
+                    
 
             if config.flag_hb == 'on':
                 if type(msg) is messages.body._GW_STATUS and msg.cmd == messages.body._GW_STATUS.KeepAliveRequest:
@@ -73,18 +75,7 @@ class Pgw2Protocol(Protocol):
                         remotePort = msg.media_port
                         recv_ip = '0.0.0.0'
                         recv_port = pgw2RtpManager.makeRecvPort()
-
-                        if config.flag_rtp == 'on':
-                            rtpSender = RtpSender()
-                            rtpSender.SetLocalPort(recv_port)
-                            rtpSender.InitGObjectRtp(remoteIp, remotePort)
-                            rtpReceiver = RtpReceiver()
-                            # rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
-
-                            pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
-                            logger.info('RtpReceiver Ip:{0} Port:{1}, RtpSender Ip:{2}, Port:{3}'.format(recv_ip, recv_port, remoteIp, remotePort))
-                            rtpSender.StartRtp()
-                            rtpReceiver.StartRtp()
+                            
 
                     res = messages.body._CALL_SETUP_RES()
                     res.Init(msg.call_type)
@@ -96,6 +87,31 @@ class Pgw2Protocol(Protocol):
                     if msg.call_type != _CALL_TYPE._CT_ALERT.value:
                         res.media_ip = struct.unpack('I', socket.inet_aton(config.my_ip))[0]
                         res.media_port = recv_port
+
+                        client = InterceptManager.matchClient(res)
+                        # if client is not None:
+                        #     print('client ip:', client.ip)
+                        #     print('client port:', client.port)
+                        #     print('client filter_type:', client.filter_type)
+                        #     print('client filter_value:', client.filter_value)
+
+                        if config.flag_rtp == 'on':
+                            rtpSender = RtpSender()
+                            rtpSender.SetLocalPort(recv_port)
+                            rtpSender.InitGObjectRtp(remoteIp, remotePort)
+                            if client is not None:
+                                rtpReceiver = RtpProxy()    
+                                rtpReceiver.InitGObjectRtp(recv_ip, recv_port, client.ip, client.port)
+                            else:
+                                rtpReceiver = RtpReceiver()
+                            # rtpReceiver.InitGObjectRtp(recv_ip, recv_port)
+
+                            pgw2RtpManager.setRtp(callid, rtpSender, rtpReceiver)
+                            logger.info('RtpReceiver Ip:{0} Port:{1}, RtpSender Ip:{2}, Port:{3}'.format(recv_ip, recv_port, remoteIp, remotePort))
+                            rtpSender.StartRtp()
+                            rtpReceiver.StartRtp()
+                        
+                        
                         
                     proc.send_call_setup_res(self, res)
 
@@ -126,6 +142,13 @@ class Pgw2Protocol(Protocol):
                                             result=0,
                                             reserve2=0,
                                             r_call_id=callid)
+                elif type(msg) is messages.body._CALL_END_NOTI:
+                    callid = pgw2CallManager.getCallId(msg.r_call_id)
+                    objRtp = pgw2RtpManager.getRtp(callid)
+                    if objRtp is not None:
+                        objRtp['RtpSender'].StopRtp()
+                        objRtp['RtpReceiver'].StopRtp()
                         
+                    
 
             data = data[h.GetSize() + h.length:]

@@ -5,6 +5,7 @@ from pgw2memory import calltype_dict, pgw2Config as config
 from pgw2memory import sessions
 from protocol import proc
 from logger.pyLogger import pgw2logger as logger
+from pgw2memory import pgw2RtpInterceptManager as InterceptManager
 
 
 class PgwCommandLineServerFactory(protocol.Factory):
@@ -107,6 +108,22 @@ class PgwCommandLineServer(protocol.Protocol):
             setattr(messageClass, data_name, data_value)
         getattr(proc, 'send' + message_name.lower())(sessions['client'], messageClass)
 
+    def Do_rtp_intercept(self, session=None, data=None):
+        if data is None:
+            return
+        ip = data['ip'] # ex) 192.168.0.61
+        port = data['port'] # ex) my receive port : 10000
+        filter_type = data['filter_type'] # s_call_id
+        filter_value = data['filter_value'] # 100
+        if ip is None or \
+            port is None or \
+            filter_type is None or \
+            filter_value is None:
+            return
+        
+        client = InterceptManager.makeClient(ip, port, filter_type, filter_value)
+        InterceptManager.addClient(client)
+        
 
 def main():
     reactor.listenTCP(5959, PgwCommandLineServerFactory())

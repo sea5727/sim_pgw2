@@ -11,7 +11,8 @@ class Manager:
         return recv_port
 
     def getRtp(self, key):
-        if key in self.Rtp:
+        
+        if hasattr(self, 'Rtp') and key in self.Rtp:
             return self.Rtp[key]
         return None
 

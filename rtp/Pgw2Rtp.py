@@ -170,7 +170,46 @@ class RtpSender(GObjectRtp):
     def SetLocalPort(self, local_port):
         self.local_port = local_port
 
+
+class RtpProxy(GObjectRtp):
+    def InitGObjectRtp(self, recv_host, recv_port, send_host, send_port):
+        super().InitGObjectRtp(recv_host, recv_port)
+
+        spec = """
+        udpsrc port={0} caps="application/x-rtp,media=(string)audio,clock-rate=(int)48000,encoding-name=(string)OPUS"
+        ! queue 
+        ! udpsink host={1} port={2} bind-port={0}
+        """.format(recv_port, send_host, send_port)
+        self.pipeline = Gst.parse_launch(spec)
+
+class RtpReceiverNotSpeaker(GObjectRtp):
+    def InitGObjectRtp(self, host, port):
+        super().InitGObjectRtp(host, port)
+                      
+        spec = """
+        udpsrc port={0} 
+        """.format(port)
+
+        self.pipeline = Gst.parse_launch(spec)
+
+
+
 class RtpReceiver(GObjectRtp):
+    def InitGObjectRtp(self, host, port):
+        super().InitGObjectRtp(host, port)
+                      
+        spec = """
+        udpsrc port={0} caps="application/x-rtp,media=(string)audio,clock-rate=(int)48000,encoding-name=(string)OPUS"
+        ! .recv_rtp_sink_0  rtpbin \
+        ! rtpopusdepay \
+        ! opusdec \
+        ! audioconvert \
+        ! audioresample \
+        ! autoaudiosink \
+        """.format(port)
+
+        self.pipeline = Gst.parse_launch(spec)
+class RtpReceiver2(GObjectRtp):
     #       gst-launch -v rtpbin name=rtpbin                                                \
     #       udpsrc caps='application/x-rtp,media=(string)audio,clock-rate=(int)8000,encoding-name=(string)PCMA' port=$RTP_RECV_PORT ! rtpbin.recv_rtp_sink_0              \
     #             rtpbin. ! rtppcmadepay ! alawdec ! audioconvert ! audioresample ! autoaudiosink \

@@ -2,6 +2,7 @@ from define.pgw_define import _MESSAGE_ID, _CALL_TYPE
 from config.configure import Config
 from call.Manager import Manager as CallManager
 from rtp.Manager import Manager as RtpManager
+from rtp.pgw2RtpIntercept import InterceptManager
 
 
 sessions = {
@@ -20,3 +21,5 @@ pgw2Config = Config()
 
 pgw2CallManager = CallManager(1000)
 pgw2RtpManager = RtpManager(10000)
+
+pgw2RtpInterceptManager = InterceptManager()
